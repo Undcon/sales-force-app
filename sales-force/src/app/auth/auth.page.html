@@ -1,0 +1,28 @@
+<ion-content [fullscreen]="true">
+  <br>
+  <ion-header collapse="condense" class="mt-5 mb-5">
+    <ion-toolbar>
+      <ion-title size="large">Sales Force</ion-title>
+    </ion-toolbar>
+  </ion-header>
+  <div class="container-fluid">
+    <form class="mt-3" [formGroup]="form">
+      <ion-item mode="md">
+        <ion-label position="floating">Digite seu e-mail</ion-label>
+        <ion-input formControlName="email"></ion-input>
+      </ion-item>
+      <app-controls-erros [control]="form.get('email')"
+            [errorMessages]="{required: 'Este campo é obrigatório.', maxlength: 'O e-mail não pode conter mais de 250 caracteres.'}"></app-controls-erros>
+      <ion-item mode="md" class="mt-1">
+        <ion-label position="floating">Digite sua senha</ion-label>
+        <ion-input formControlName="password"></ion-input>
+      </ion-item>
+      <app-controls-erros [control]="form.get('password')"
+            [errorMessages]="{required: 'Este campo é obrigatório.', maxlength: 'A senha não pode conter mais de 18 caracteres.'}"></app-controls-erros>
+      <ion-button (click)="login()" class="w-100 mt-5 mb-2">Acessar</ion-button>
+      <div class="text-center">
+        <ion-button fill="clear" color="medium">Esqueci minha senha</ion-button>
+      </div>
+    </form>
+  </div>
+</ion-content>
