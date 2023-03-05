@@ -1,12 +1,12 @@
 <ion-header collapse="condense">
-  <ion-toolbar>
+  <ion-toolbar mode="ios">
     <ion-title>Clientes</ion-title>
     <ion-buttons slot="end">
-      <ion-button>Adicionar</ion-button>
+      <ion-button [routerLink]="['/', 'features', 'tab1', 'customer-register', 'new']">Adicionar</ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-searchbar placeholder="Digite para pesquisar..."></ion-searchbar>
+  <ion-searchbar mode="ios" placeholder="Digite para pesquisar..."></ion-searchbar>
 </ion-content>

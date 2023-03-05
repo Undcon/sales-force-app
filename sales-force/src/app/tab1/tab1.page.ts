@@ -13,13 +13,8 @@ export class Tab1Page implements OnInit {
   ) {}
 
   ngOnInit() {
-    console.error('aqui');
-    alert('aqui');
     this.customerService.getAll().then(customers => {
       console.log(customers);
-    }).catch(err => {
-      console.log(err);
-      
     });
   }
 
