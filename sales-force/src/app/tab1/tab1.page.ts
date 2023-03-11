@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { CustomerService } from '../core/entity/customer/customer.service';
+import { AlertController, Platform } from '@ionic/angular';
+import { NgxIndexedDBService } from 'ngx-indexed-db';
+import { Customer } from '../core/entity/customer/customer.service';
 
 @Component({
   selector: 'app-tab1',
@@ -8,14 +10,59 @@ import { CustomerService } from '../core/entity/customer/customer.service';
 })
 export class Tab1Page implements OnInit {
 
+  public isIos = false;
+
+  private _customers = [] as Customer[];
+  public customers = [] as Customer[];
+
+
+  public filterField = '';
+
   constructor(
-    private customerService: CustomerService
-  ) {}
+    private platform: Platform,
+    private dbService: NgxIndexedDBService,
+    private alertController: AlertController
+  ) { }
 
   ngOnInit() {
-    this.customerService.getAll().then(customers => {
-      console.log(customers);
+    this.isIos = this.platform.is('ios');
+  }
+
+  ionViewWillEnter() {
+    this.dbService.getAll('sale_force_customer').subscribe((customers: any[]) => {
+      this._customers = customers;
+      this.customers = customers;
     });
+  }
+
+  public filter() {
+    if (this.filterField) {
+      this.customers = this._customers.filter(c => c.name.toLowerCase().includes(this.filterField.toLowerCase()));
+    } else {
+      this.customers = this._customers;
+    }
+  }
+
+  public async delete(id: any) {
+    const alert = await this.alertController.create({
+      header: 'Remover cliente',
+      message: 'Ao remover um cliente não será possível desfazer está operação!',
+      buttons: [
+        {
+          text: 'Cancelar',
+        },
+        {
+          text: 'Remover',
+          cssClass: 'alert-button-confirm',
+          handler: () => {
+            this.dbService.deleteByKey('sale_force_customer', id).subscribe();
+            this.customers = this.customers.filter(c => c.id !== id);
+          }
+        },
+      ],
+    });
+
+    await alert.present();
   }
 
 }

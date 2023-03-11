@@ -12,13 +12,13 @@
         <ion-input formControlName="email"></ion-input>
       </ion-item>
       <app-controls-erros [control]="form.get('email')"
-            [errorMessages]="{required: 'Este campo é obrigatório.', maxlength: 'O e-mail não pode conter mais de 250 caracteres.'}"></app-controls-erros>
+        [errorMessages]="{required: 'Este campo é obrigatório.', maxlength: 'O e-mail não pode conter mais de 250 caracteres.'}"></app-controls-erros>
       <ion-item mode="md" class="mt-1">
         <ion-label position="floating">Digite sua senha</ion-label>
         <ion-input formControlName="password"></ion-input>
       </ion-item>
       <app-controls-erros [control]="form.get('password')"
-            [errorMessages]="{required: 'Este campo é obrigatório.', maxlength: 'A senha não pode conter mais de 18 caracteres.'}"></app-controls-erros>
+        [errorMessages]="{required: 'Este campo é obrigatório.', maxlength: 'A senha não pode conter mais de 18 caracteres.'}"></app-controls-erros>
       <ion-button (click)="login()" class="w-100 mt-5 mb-2">Acessar</ion-button>
       <div class="text-center">
         <ion-button fill="clear" color="medium">Esqueci minha senha</ion-button>

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { NgxIndexedDBService } from 'ngx-indexed-db';
 import { SessionService } from '../core/entity/session/session.service';
 
 @Component({
@@ -14,8 +15,9 @@ export class AuthPage implements OnInit {
 
   constructor(
     private formBuilder: FormBuilder,
-    private sessionService: SessionService,
-    private router: Router
+    private router: Router,
+    private dbService: NgxIndexedDBService,
+    private sessionService: SessionService
   ) { }
 
   ngOnInit() {
@@ -27,8 +29,12 @@ export class AuthPage implements OnInit {
 
   public async login() {
     if (this.form.valid) {
-      await this.sessionService.insert(this.form.getRawValue());
-      this.router.navigate(['/features']);
+      const response = await this.sessionService.login(this.form.getRawValue()).toPromise() as any;
+      const form = this.form.getRawValue();
+      form.token = response.token;
+      localStorage.setItem('token', response.token);
+      await this.dbService.add('sale_force_session', form);
+      this.router.navigate(['/sync']);
     } else {
       this.form.markAllAsTouched();
     }

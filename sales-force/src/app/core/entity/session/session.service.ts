@@ -1,22 +1,26 @@
 import { Injectable } from '@angular/core';
 
-import { v4 as uuidv4 } from 'uuid';
-
-import { AppComponent } from 'src/app/app.component';
+import { HttpClient } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SessionService {
 
-  constructor() { }
+  constructor(
+    private http: HttpClient
+  ) { }
 
-  public async createTable() {
-    await AppComponent.DATABASE.executeSql('create table if not exists sales_force_session(id varchar(255) primary key, email varchar(255), password varchar(18))');
-  }
-
-  public async insert(session: Session) {
-    await AppComponent.DATABASE.executeSql('insert into sales_force_session(id, email, password) values(?,?,?)', [uuidv4(), session.email, session.password]);
+  public login(payload: Session) {
+    return this.http.post(`${environment.url}/login`, {
+      login: payload.email,
+      password: payload.password
+    }, {
+      headers: {
+        xom: 'https://app.undcon.com.br'
+      }
+    });
   }
 }
 

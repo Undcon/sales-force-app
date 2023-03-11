@@ -1,4 +1,4 @@
-<ion-header collapse="condense">
+<ion-header [collapse]="isIos ? 'condense' : ''">
   <ion-toolbar mode="ios">
     <ion-title>Clientes</ion-title>
     <ion-buttons slot="end">
@@ -8,5 +8,26 @@
 </ion-header>
 
 <ion-content>
-  <ion-searchbar mode="ios" placeholder="Digite para pesquisar..."></ion-searchbar>
+  <ion-searchbar [(ngModel)]="filterField" (ngModelChange)="filter()" mode="ios"
+    placeholder="Digite para pesquisar..."></ion-searchbar>
+  <ion-list *ngIf="customers?.length">
+    <ion-item-sliding *ngFor="let customer of customers">
+      <ion-item [routerLink]="['/', 'features', 'tab1', 'customer-register', customer.id]">
+        <ion-label>
+          <h2>{{customer.name}}</h2>
+          <p style="font-size: 12px;" class="text-muted">{{customer.cpfCnpj || 'CPF ou CNPJ não informado'}}</p>
+        </ion-label>
+        <ion-badge *ngIf="!customer.sync" color="primary">Sincronizando</ion-badge>
+      </ion-item>
+      <ion-item-options>
+        <ion-item-option
+          [routerLink]="['/', 'features', 'tab1', 'customer-register', customer.id]">Editar</ion-item-option>
+        <ion-item-option (click)="delete(customer.id)" color="danger">Remover</ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
+  </ion-list>
+  <div class="text-center text-muted mt-5" *ngIf="!customers?.length">
+    <ion-icon name="file-tray-outline" style="font-size: 100px;"></ion-icon>
+    <h2>Nenhum cliente cadastrado</h2>
+  </div>
 </ion-content>
