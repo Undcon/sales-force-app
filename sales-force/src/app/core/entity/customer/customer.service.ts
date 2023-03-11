@@ -14,6 +14,14 @@ export class CustomerService {
     private http: HttpClient
   ) { }
 
+  public create(payload: Customer) {
+    return this.http.post(`${environment.url}/customers`, payload);
+  }
+
+  public update(payload: Customer) {
+    return this.http.put(`${environment.url}/customers/${payload.id}`, payload);
+  }
+
   public getAll(page = 0) {
     return this.http.get(`${environment.url}/customers?page=${page}&size=500`);
   }
@@ -23,8 +31,8 @@ export class CustomerService {
 export interface Customer {
   id: string;
   name: string;
-  state: {id: string, name: string},
-  city: {id: string, name: string},
+  state: { id: string, name: string },
+  city: { id: string, name: string },
   district: string;
   address: string;
   phone: string;
@@ -40,4 +48,5 @@ export interface Customer {
   email: string;
   motherName: string;
   sync: boolean;
+  error: any;
 }

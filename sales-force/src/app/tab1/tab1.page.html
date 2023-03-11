@@ -15,9 +15,12 @@
       <ion-item [routerLink]="['/', 'features', 'tab1', 'customer-register', customer.id]">
         <ion-label>
           <h2>{{customer.name}}</h2>
-          <p style="font-size: 12px;" class="text-muted">{{customer.cpfCnpj || 'CPF ou CNPJ não informado'}}</p>
+          <p *ngIf="customer.cpfCnpj" style="font-size: 12px;" class="text-muted">{{customer.cpfCnpj | mask:
+            (customer.cpfCnpj.length > 11 ? '00.000.000/0000-00' : '000.000.000-00')}}</p>
+          <p *ngIf="!customer.cpfCnpj" style="font-size: 12px;" class="text-muted">CPF ou CNPJ não informado</p>
         </ion-label>
         <ion-badge *ngIf="!customer.sync" color="primary">Sincronizando</ion-badge>
+        <ion-badge *ngIf="customer.error" color="danger">Erro</ion-badge>
       </ion-item>
       <ion-item-options>
         <ion-item-option
@@ -30,4 +33,5 @@
     <ion-icon name="file-tray-outline" style="font-size: 100px;"></ion-icon>
     <h2>Nenhum cliente cadastrado</h2>
   </div>
+  <br>
 </ion-content>

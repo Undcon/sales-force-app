@@ -1,0 +1,48 @@
+<ion-header [collapse]="isIos ? 'condense' : ''">
+  <ion-toolbar mode="ios">
+    <ion-back-button slot="start" defaultHref="/features/tab2" text="Voltar"></ion-back-button>
+    <ion-title>Novo pedido</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="container mt-3">
+    <ion-segment mode="ios" [value]="segment" (ionChange)="onSegmentChage($event)">
+      <ion-segment-button value="product">Pedido</ion-segment-button>
+      <ion-segment-button value="items">Itens do pedido</ion-segment-button>
+    </ion-segment>
+    <span *ngIf="segment === 'product'" class="p-float-label mt-3">
+      <input id="float-input" class="w-100" type="text" pInputText>
+      <label for="float-input">Digite o cliente</label>
+    </span>
+    <span *ngIf="segment === 'product'" class="p-float-label mt-3">
+      <input id="float-input" class="w-100" type="text" pInputText>
+      <label for="float-input">Digite a tabela de preço</label>
+    </span>
+    <span *ngIf="segment === 'product'" class="p-float-label mt-3">
+      <input id="float-input" class="w-100" type="text" pInputText>
+      <label for="float-input">Digite a tabela de prazo</label>
+    </span>
+    <span *ngIf="segment === 'product'" class="p-float-label mt-3">
+      <textarea id="float-input" class="w-100" type="text" pInputText></textarea>
+      <label for="float-input">Digite observações</label>
+    </span>
+    <span *ngIf="segment === 'items'" class="p-float-label mt-3">
+      <input id="float-input" class="w-100" type="text" pInputText>
+      <label for="float-input">Digite o kit</label>
+    </span>
+    <span *ngIf="segment === 'items'" class="p-float-label mt-3">
+      <input id="float-input" class="w-100" type="text" pInputText>
+      <label for="float-input">Digite a quantidade</label>
+    </span>
+    <div class="text-right" *ngIf="segment === 'items'">
+      <ion-button fill="clear">Vincular item</ion-button>
+    </div>
+    <h2 *ngIf="segment === 'items'">Itens no pedido</h2>
+    <div class="text-center text-muted mt-5" *ngIf="segment === 'items'">
+      <ion-icon name="file-tray-outline" style="font-size: 100px;"></ion-icon>
+      <h3>Nenhum item vinculado</h3>
+    </div>
+    <ion-button *ngIf="segment === 'product'" class="w-100">Salvar</ion-button>
+  </div>
+</ion-content>

@@ -6,6 +6,10 @@ const routes: Routes = [
   {
     path: '',
     component: Tab2Page,
+  },
+  {
+    path: 'product-register',
+    loadChildren: () => import('./product-register/product-register.module').then( m => m.ProductRegisterPageModule)
   }
 ];
 

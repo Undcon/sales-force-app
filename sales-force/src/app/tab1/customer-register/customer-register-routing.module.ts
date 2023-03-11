@@ -15,7 +15,7 @@ export class CustomerResolver implements Resolve<Customer> {
     if (route.paramMap.get('id') === 'new') {
       return null;
     }
-    return this.dbService.getByID<any>('sale_force_customer', route.paramMap.get('id') as any) as any;
+    return this.dbService.getByID<any>('sale_force_customer', route.paramMap.get('id')?.toString() as any) as any;
   }
 }
 

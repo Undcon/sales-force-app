@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AlertController, Platform } from '@ionic/angular';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
 import { Customer } from '../core/entity/customer/customer.service';
+import { SyncService } from '../core/entity/sync/sync.service';
 
 @Component({
   selector: 'app-tab1',
@@ -21,11 +22,26 @@ export class Tab1Page implements OnInit {
   constructor(
     private platform: Platform,
     private dbService: NgxIndexedDBService,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private syncService: SyncService
   ) { }
 
   ngOnInit() {
     this.isIos = this.platform.is('ios');
+    this.syncService.getCustomerSync().subscribe(customer => {
+      this._customers.forEach(c => {
+        if (c.id == customer.oldid) {
+          c.id = customer.id.toString();
+          c.sync = true;
+        }
+      });
+      this.customers.forEach(c => {
+        if (c.id == customer.id) {
+          c.id = customer.id.toString();
+          c.sync = true;
+        }
+      });
+    });
   }
 
   ionViewWillEnter() {

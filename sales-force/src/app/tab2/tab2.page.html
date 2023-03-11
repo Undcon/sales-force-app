@@ -1,15 +1,12 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Tab 2
-    </ion-title>
+<ion-header [collapse]="isIos ? 'condense' : ''">
+  <ion-toolbar mode="ios">
+    <ion-title>Produtos</ion-title>
+    <ion-buttons slot="end">
+      <ion-button [routerLink]="['/', 'features', 'tab2', 'product-register', 'new']">Adicionar</ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 2</ion-title>
-    </ion-toolbar>
-  </ion-header>
+
 </ion-content>

@@ -5,6 +5,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputMaskModule } from 'primeng/inputmask';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { DropdownModule } from 'primeng/dropdown';
+import { CalendarModule } from 'primeng/calendar';
 
 @NgModule({
   declarations: [
@@ -22,7 +23,8 @@ import { DropdownModule } from 'primeng/dropdown';
     InputTextModule,
     InputMaskModule,
     AutoCompleteModule,
-    DropdownModule
+    DropdownModule,
+    CalendarModule
   ]
 })
 export class SharedModule { }

@@ -4,7 +4,6 @@ import { ActivatedRoute } from '@angular/router';
 import { NavController, Platform, ToastController } from '@ionic/angular';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
 import { CityService } from 'src/app/core/entity/city/city.service';
-import { CustomerService } from 'src/app/core/entity/customer/customer.service';
 
 import { v4 as uuidv4 } from 'uuid';
 
@@ -17,8 +16,12 @@ export class CustomerRegisterPage implements OnInit {
 
   public form: FormGroup;
 
+  public pfPj = 'pf';
+
   public isCNPJ = false;
   public isIos = false;
+
+  public error = '';
 
   public states = [] as any[];
   public _city = [] as any[]
@@ -29,7 +32,6 @@ export class CustomerRegisterPage implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private platform: Platform,
-    private customerService: CustomerService,
     private navController: NavController,
     private toastController: ToastController,
     private dbService: NgxIndexedDBService,
@@ -61,7 +63,7 @@ export class CustomerRegisterPage implements OnInit {
       motherName: []
     });
     this.form.get('cpfCnpj')?.valueChanges.subscribe(cpfCnpj => {
-      if (cpfCnpj && cpfCnpj.replace('.', '').replace('.', '').replace('-', '').length > 11) {
+      if (cpfCnpj && cpfCnpj.replace('_', '').replace('_', '').replace('.', '').replace('.', '').replace('-', '').length > 11) {
         this.isCNPJ = true;
       } else {
         this.isCNPJ = false;
@@ -85,7 +87,8 @@ export class CustomerRegisterPage implements OnInit {
       } catch (err) {
 
       }
-    })
+    });
+    
   }
 
   ionViewWillEnter() {
@@ -99,8 +102,16 @@ export class CustomerRegisterPage implements OnInit {
     if ((this.activatedRoute.snapshot.data as any).customer) {
       const customer = (this.activatedRoute.snapshot.data as any).customer;
       customer.state = customer?.state?.id;
+      this.error = customer.error;
+      if (customer?.cpfCnpj?.length > 11) {
+        this.pfPj = 'pj';
+      }
       this.form.patchValue(customer);
     }
+  }
+
+  public onSegmentChange(event: any) {
+    this.pfPj = event.detail.value;
   }
 
   public onCityFilter() {
@@ -116,14 +127,28 @@ export class CustomerRegisterPage implements OnInit {
   public async save() {
     if (this.form.valid) {
       const form = this.form.getRawValue();
-      form.state = { id: form.state };
+      if (form.cpfCnpj) {
+        form.cpfCnpj = form.cpfCnpj.replace('.', '').replace('.', '').replace('.', '').replace('-', '').replace('/', '');
+      }
+      if (form.state) {
+        form.state = { id: form.state };
+      }
+      if (form.phone) {
+        form.phone = form.phone.replace('(', '').replace(')', '').replace('-', '').replace(/\s/g,'');
+      }
+      if (form.phone2) {
+        form.phone2 = form.phone2.replace('(', '').replace(')', '').replace('-', '').replace(/\s/g,'');
+      }
+      if (form.phone3) {
+        form.phone3 = form.phone3.replace('(', '').replace(')', '').replace('-', '').replace(/\s/g,'');
+      }
       if (this.activatedRoute.snapshot.params['id'] === 'new') {
         form.id = uuidv4();
-        form.sync = false;
+        form.sync = 0;
         this.dbService.add('sale_force_customer', form).subscribe();
       } else {
         form.id = this.activatedRoute.snapshot.params['id'];
-        form.sync = false;
+        form.sync = 0;
         this.dbService.update('sale_force_customer', form).subscribe();
       }
       const toast = await this.toastController.create({

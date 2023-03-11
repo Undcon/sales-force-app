@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { SQLiteObject } from '@awesome-cordova-plugins/sqlite/ngx';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
+import { SyncService } from './core/entity/sync/sync.service';
 
 @Component({
   selector: 'app-root',
@@ -15,7 +16,9 @@ export class AppComponent implements OnInit {
 
   constructor(
     private dbService: NgxIndexedDBService,
-    private router: Router
+    private router: Router,
+    private syncService: SyncService,
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
@@ -24,5 +27,9 @@ export class AppComponent implements OnInit {
         this.router.navigate(['/', 'sync']);
       }
     });
+    setInterval(async () => {
+      await this.syncService.sync();
+      this.cdr.detectChanges();
+    }, 10000)
   }
 }

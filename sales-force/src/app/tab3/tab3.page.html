@@ -1,15 +1,28 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Tab 3
-    </ion-title>
+<ion-header [collapse]="isIos ? 'condense' : ''">
+  <ion-toolbar mode="ios">
+    <ion-title>Notificações</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 3</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content>
+  <ion-list *ngIf="logs?.length">
+    <ion-item-sliding *ngFor="let log of logs">
+      <ion-item (click)="deleteNotification(log.id)" *ngIf="log.type === 'customer'">
+        <ion-icon color="medium" name="person" slot="start"></ion-icon>
+        <ion-note [routerLink]="['/', 'features', 'tab1', 'customer-register', log.id]">
+          <h6 class="pb-0 mb-0">{{log.log}}</h6>
+          <p style="font-size: 12px;" *ngIf="log.type === 'customer'">Notificações de cliente</p>
+        </ion-note>
+        <ion-button color="danger" fill="clear" slot="end"
+          [routerLink]="['/', 'features', 'tab1', 'customer-register', log.id]">Ver motivo</ion-button>
+      </ion-item>
+      <ion-item-options>
+        <ion-item-option color="danger">Remover</ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
+  </ion-list>
+  <div class="text-center text-muted mt-5" *ngIf="!logs?.length">
+    <ion-icon name="file-tray-outline" style="font-size: 100px;"></ion-icon>
+    <h2>Nenhuma notificação</h2>
+  </div>
 </ion-content>

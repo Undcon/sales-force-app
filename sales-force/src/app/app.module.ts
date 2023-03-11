@@ -13,6 +13,9 @@ import { AppComponent } from './app.component';
 import { NgxIndexedDBModule, DBConfig } from 'ngx-indexed-db';
 import { InterceptorService } from './core/interpector.service';
 
+import { provideEnvironmentNgxMask } from 'ngx-mask';
+
+
 export function migrationFactory() {
   return {
     1: (db: any, transaction: any) => {
@@ -30,6 +33,14 @@ export function migrationFactory() {
     4: (db: any, transaction: any) => {
       const store = transaction.objectStore('sale_force_state');
       store.createIndex('sale_force_city', 'id', { unique: true });
+    },
+    5: (db: any, transaction: any) => {
+      const store = transaction.objectStore('sale_force_log');
+      store.createIndex('sale_force_log', 'id', { unique: true });
+    },
+    6: (db: any, transaction: any) => {
+      const store = transaction.objectStore('sale_force_table_price');
+      store.createIndex('sale_force_table_price', 'id', { unique: true });
     }
   };
 }
@@ -66,7 +77,8 @@ const dbConfig: DBConfig = {
       { name: 'rg', keypath: 'rg', options: { unique: false } },
       { name: 'email', keypath: 'email', options: { unique: false } },
       { name: 'motherName', keypath: 'motherName', options: { unique: false } },
-      { name: 'sync', keypath: 'sync', options: { unique: false } }
+      { name: 'sync', keypath: 'sync', options: { unique: false } },
+      { name: 'oldid', keypath: 'sync', options: { unique: false } },
     ]
   }, {
     store: 'sale_force_last_sync',
@@ -88,13 +100,34 @@ const dbConfig: DBConfig = {
       { name: 'ibgeCode', keypath: 'ibgeCode', options: { unique: false } },
       { name: 'name', keypath: 'name', options: { unique: false } }
     ]
+  }, {
+    store: 'sale_force_log',
+    storeConfig: { keyPath: 'id', autoIncrement: false },
+    storeSchema: [
+      { name: 'log', keypath: 'log', options: { unique: false } }
+    ]
+  }, {
+    store: 'sale_force_table_price',
+    storeConfig: { keyPath: 'id', autoIncrement: false },
+    storeSchema: [
+      { name: 'depositTarget', keypath: 'depositTarget', options: { unique: false } },
+      { name: 'depositSource', keypath: 'depositSource', options: { unique: false } },
+      { name: 'itens', keypath: 'itens', options: { unique: false } }
+    ]
   }],
   migrationFactory
 };
 
 @NgModule({
   declarations: [AppComponent],
-  imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule, NgxIndexedDBModule.forRoot(dbConfig), HttpClientModule, BrowserAnimationsModule],
+  imports: [
+    BrowserModule,
+    IonicModule.forRoot(),
+    AppRoutingModule,
+    NgxIndexedDBModule.forRoot(dbConfig),
+    HttpClientModule,
+    BrowserAnimationsModule
+  ],
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     SQLite,
@@ -102,7 +135,8 @@ const dbConfig: DBConfig = {
       provide: HTTP_INTERCEPTORS,
       useClass: InterceptorService,
       multi: true
-    }
+    },
+    provideEnvironmentNgxMask()
   ],
   bootstrap: [AppComponent],
 })

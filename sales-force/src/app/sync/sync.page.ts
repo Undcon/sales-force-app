@@ -100,8 +100,9 @@ export class SyncPage implements OnInit {
   private async insertCustomer(customers: Customer[]) {
     if (customers) {
       for (const customer of customers) {
-        this.dbService.getByID('sale_force_customer', customer.id).subscribe(async c => {
+        this.dbService.getByID('sale_force_customer', customer.id.toString()).subscribe(async c => {
           try {
+            customer.id = customer.id.toString();
             customer.sync = true;
             if (c) {
               await this.dbService.update('sale_force_customer', customer).toPromise();

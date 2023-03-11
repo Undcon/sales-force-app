@@ -31,6 +31,7 @@
     "cordova-android": "10.1.2",
     "ionicons": "^6.0.3",
     "ngx-indexed-db": "^16.0.0",
+    "ngx-mask": "^15.1.0",
     "primeicons": "^6.0.1",
     "primeng": "^15.2.0",
     "rxjs": "~7.5.0",
