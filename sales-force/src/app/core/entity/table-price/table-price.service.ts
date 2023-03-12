@@ -16,6 +16,6 @@ export class TablePriceService {
   }
 
   public getAllProduct(tablePrice: string) {
-    return this.http.get(`${environment.url}/tableprice/${tablePrice}/itensProducts?page=0&size=50000`)
+    return this.http.get(`${environment.url}/tableprice/${tablePrice}/itensProducts?filter=table.id=${tablePrice}&page=0&size=50000`)
   }
 }

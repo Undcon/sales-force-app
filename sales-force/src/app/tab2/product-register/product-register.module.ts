@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
@@ -8,6 +8,7 @@ import { ProductRegisterPageRoutingModule } from './product-register-routing.mod
 
 import { ProductRegisterPage } from './product-register.page';
 import { SharedModule } from 'src/app/shared/shared.module';
+import { NgxMaskDirective, NgxMaskPipe, provideNgxMask } from 'ngx-mask';
 
 @NgModule({
   imports: [
@@ -15,8 +16,12 @@ import { SharedModule } from 'src/app/shared/shared.module';
     FormsModule,
     IonicModule,
     ProductRegisterPageRoutingModule,
-    SharedModule
+    SharedModule,
+    NgxMaskDirective,
+    NgxMaskPipe,
+    ReactiveFormsModule
   ],
-  declarations: [ProductRegisterPage]
+  declarations: [ProductRegisterPage],
+  providers: [provideNgxMask()]
 })
 export class ProductRegisterPageModule {}

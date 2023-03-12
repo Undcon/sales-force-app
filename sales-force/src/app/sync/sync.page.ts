@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { StateService } from '../core/entity/state/state.service';
 import { CityService } from '../core/entity/city/city.service';
 import { TablePriceService } from '../core/entity/table-price/table-price.service';
+import { TableTimeService } from '../core/entity/table-time/table-time.service';
 
 @Component({
   selector: 'app-sync',
@@ -28,7 +29,8 @@ export class SyncPage implements OnInit {
     private customerService: CustomerService,
     private stateService: StateService,
     private cityService: CityService,
-    private tablePriceService: TablePriceService
+    private tablePriceService: TablePriceService,
+    private tableTimeService: TableTimeService
   ) { }
 
   ngOnInit() {
@@ -60,8 +62,28 @@ export class SyncPage implements OnInit {
     await this.loadState();
     await this.loadCity();
     await this.loadTablePrice();
+    await this.loadTableTime();
     await this.syncTablePriceProduct();
     this.router.navigate(['/', 'features', 'tab1']);
+  }
+
+  private async loadTableTime() {
+    this.step = 'Sincronizando tabela de prazo';
+    await this.dbService.clear('sale_force_table_time').toPromise();
+    const table = await this.tableTimeService.getAll(0).toPromise() as any;
+    await this.insertTableTime(table.content);
+    for (let i = 1; i < table.totalPages; i++) {
+      const tableFor = await this.tableTimeService.getAll(i).toPromise() as any;
+      this.insertTableTime(tableFor.content);
+    }
+  }
+
+  private async insertTableTime(table: any[]) {
+    if (table) {
+      for (const t of table) {
+        await this.dbService.add('sale_force_table_time', t).toPromise();
+      }
+    }
   }
 
   private async syncTablePriceProduct() {
@@ -70,7 +92,6 @@ export class SyncPage implements OnInit {
     const tables = await this.dbService.getAll('sale_force_table_price').toPromise() as any[];
     for (const table of tables) {
       const products = await this.tablePriceService.getAllProduct(table.id).toPromise() as any;
-      debugger
       for (const product of products.content) {
         product.tableId = table.id;
         await this.dbService.add('sale_force_table_price_product', product).toPromise();
@@ -85,7 +106,7 @@ export class SyncPage implements OnInit {
     await this.insertTable(table.content);
     for (let i = 1; i < table.totalPages; i++) {
       const tableFor = await this.tablePriceService.getAll(i).toPromise() as any;
-      this.insertCity(tableFor.content);
+      this.insertTable(tableFor.content);
     }
   }
 

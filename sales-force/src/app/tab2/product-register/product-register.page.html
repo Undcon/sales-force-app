@@ -11,21 +11,21 @@
       <ion-segment-button value="product">Pedido</ion-segment-button>
       <ion-segment-button value="items">Itens do pedido</ion-segment-button>
     </ion-segment>
-    <span *ngIf="segment === 'product'" class="p-float-label mt-3">
+    <span (click)="customerModal.present()" *ngIf="segment === 'product'" class="p-float-label mt-3">
       <input id="float-input" class="w-100" type="text" pInputText>
-      <label for="float-input">Digite o cliente</label>
+      <label for="float-input">Selecione o cliente</label>
     </span>
-    <span *ngIf="segment === 'product'" class="p-float-label mt-3">
+    <span (click)="tablePriceModal.present()" *ngIf="segment === 'product'" class="p-float-label mt-3">
       <input id="float-input" class="w-100" type="text" pInputText>
-      <label for="float-input">Digite a tabela de preço</label>
+      <label for="float-input">Selecione a tabela de preço</label>
     </span>
-    <span *ngIf="segment === 'product'" class="p-float-label mt-3">
+    <span (click)="tableTimeModal.present()" *ngIf="segment === 'product'" class="p-float-label mt-3">
       <input id="float-input" class="w-100" type="text" pInputText>
-      <label for="float-input">Digite a tabela de prazo</label>
+      <label for="float-input">Selecione a tabela de prazo</label>
     </span>
     <span *ngIf="segment === 'product'" class="p-float-label mt-3">
       <textarea id="float-input" class="w-100" type="text" pInputText></textarea>
-      <label for="float-input">Digite observações</label>
+      <label for="float-input">Selecione observações</label>
     </span>
     <span *ngIf="segment === 'items'" class="p-float-label mt-3">
       <input id="float-input" class="w-100" type="text" pInputText>
@@ -46,3 +46,112 @@
     <ion-button *ngIf="segment === 'product'" class="w-100">Salvar</ion-button>
   </div>
 </ion-content>
+
+<ion-modal mode="ios" #customerModal trigger="open-modal" [initialBreakpoint]="0.80" [breakpoints]="[0, 0.80, 1]">
+  <ng-template>
+    <ion-header [collapse]="isIos ? 'condense' : ''" mode="ios">
+      <ion-toolbar mode="ios">
+        <ion-label>
+          <h2 class="font-weight-bold mb-0 pb-0 pl-1">Clientes</h2>
+        </ion-label>
+        <ion-button (click)="customerModal.dismiss()" fill="clear" slot="end">
+          Cancelar
+        </ion-button>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content style="--background: #ffffff">
+      <ion-searchbar [(ngModel)]="customerFilter" (ngModelChange)="onCustomerFilter()" mode="ios"
+        placeholder="Pesquisar"></ion-searchbar>
+      <ion-list *ngIf="customers?.length">
+        <ion-item *ngFor="let item of customers">
+          <ion-label>
+            <h2>{{item.name}}</h2>
+            <p *ngIf="item.cpfCnpj" style="font-size: 12px;" class="text-muted">{{item.cpfCnpj | mask:
+              (item.cpfCnpj.length > 11 ? '00.000.000/0000-00' : '000.000.000-00')}}</p>
+            <p *ngIf="!item.cpfCnpj" style="font-size: 12px;" class="text-muted">CPF ou CNPJ não informado</p>
+          </ion-label>
+          <ion-button slot="end" fill="clear">Selecionar</ion-button>
+        </ion-item>
+      </ion-list>
+      <div class="text-center text-muted mt-5" *ngIf="!customers?.length && !customerFilter">
+        <ion-icon name="search-outline" style="font-size: 100px;"></ion-icon>
+        <h2>Digite para pesquisar</h2>
+      </div>
+      <div class="text-center text-muted mt-5" *ngIf="!customers?.length && customerFilter">
+        <ion-icon name="file-tray-outline" style="font-size: 100px;"></ion-icon>
+        <h2>Nenhum cliente encontrado</h2>
+      </div>
+    </ion-content>
+  </ng-template>
+</ion-modal>
+
+<ion-modal mode="ios" #tablePriceModal trigger="open-modal" [initialBreakpoint]="0.80" [breakpoints]="[0, 0.80, 1]">
+  <ng-template>
+    <ion-header [collapse]="isIos ? 'condense' : ''" mode="ios">
+      <ion-toolbar mode="ios">
+        <ion-label>
+          <h2 class="font-weight-bold mb-0 pb-0 pl-1">Tabela de preço</h2>
+        </ion-label>
+        <ion-button (click)="tablePriceModal.dismiss()" fill="clear" slot="end">
+          Cancelar
+        </ion-button>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content style="--background: #ffffff">
+      <ion-searchbar [(ngModel)]="tablePriceFilter" (ngModelChange)="onTablePriceFilter()" mode="ios"
+        placeholder="Pesquisar"></ion-searchbar>
+      <ion-list *ngIf="tablePrices?.length">
+        <ion-item *ngFor="let item of tablePrices">
+          <ion-label>
+            <h2>{{item.name}}</h2>
+          </ion-label>
+          <ion-button slot="end" fill="clear">Selecionar</ion-button>
+        </ion-item>
+      </ion-list>
+      <div class="text-center text-muted mt-5" *ngIf="!tablePrices?.length && !tablePriceFilter">
+        <ion-icon name="search-outline" style="font-size: 100px;"></ion-icon>
+        <h2>Digite para pesquisar</h2>
+      </div>
+      <div class="text-center text-muted mt-5" *ngIf="!tablePrices?.length && tablePriceFilter">
+        <ion-icon name="file-tray-outline" style="font-size: 100px;"></ion-icon>
+        <h2>Nenhuma tabela de preço encontrada</h2>
+      </div>
+    </ion-content>
+  </ng-template>
+</ion-modal>
+
+
+<ion-modal mode="ios" #tableTimeModal trigger="open-modal" [initialBreakpoint]="0.80" [breakpoints]="[0, 0.80, 1]">
+  <ng-template>
+    <ion-header [collapse]="isIos ? 'condense' : ''" mode="ios">
+      <ion-toolbar mode="ios">
+        <ion-label>
+          <h2 class="font-weight-bold mb-0 pb-0 pl-1">Tabela de prazo</h2>
+        </ion-label>
+        <ion-button (click)="tableTimeModal.dismiss()" fill="clear" slot="end">
+          Cancelar
+        </ion-button>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content style="--background: #ffffff">
+      <ion-searchbar [(ngModel)]="tableTimesFilter" (ngModelChange)="onTableTimeFilter()" mode="ios"
+        placeholder="Pesquisar"></ion-searchbar>
+      <ion-list *ngIf="tableTimes?.length">
+        <ion-item *ngFor="let item of tableTimes">
+          <ion-label>
+            <h2>{{item.name}}</h2>
+          </ion-label>
+          <ion-button slot="end" fill="clear">Selecionar</ion-button>
+        </ion-item>
+      </ion-list>
+      <div class="text-center text-muted mt-5" *ngIf="!tableTimes?.length && !tableTimesFilter">
+        <ion-icon name="search-outline" style="font-size: 100px;"></ion-icon>
+        <h2>Digite para pesquisar</h2>
+      </div>
+      <div class="text-center text-muted mt-5" *ngIf="!tableTimes?.length && tableTimesFilter">
+        <ion-icon name="file-tray-outline" style="font-size: 100px;"></ion-icon>
+        <h2>Nenhuma tabela de prazo encontrada</h2>
+      </div>
+    </ion-content>
+  </ng-template>
+</ion-modal>
