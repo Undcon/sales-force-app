@@ -8,6 +8,7 @@ import { Customer, CustomerService } from '../core/entity/customer/customer.serv
 import { v4 as uuidv4 } from 'uuid';
 import { StateService } from '../core/entity/state/state.service';
 import { CityService } from '../core/entity/city/city.service';
+import { TablePriceService } from '../core/entity/table-price/table-price.service';
 
 @Component({
   selector: 'app-sync',
@@ -26,7 +27,8 @@ export class SyncPage implements OnInit {
     private dbService: NgxIndexedDBService,
     private customerService: CustomerService,
     private stateService: StateService,
-    private cityService: CityService
+    private cityService: CityService,
+    private tablePriceService: TablePriceService
   ) { }
 
   ngOnInit() {
@@ -57,7 +59,42 @@ export class SyncPage implements OnInit {
     await this.loadCustomer();
     await this.loadState();
     await this.loadCity();
-    this.router.navigate(['/', 'features', 'tab1'])
+    await this.loadTablePrice();
+    await this.syncTablePriceProduct();
+    this.router.navigate(['/', 'features', 'tab1']);
+  }
+
+  private async syncTablePriceProduct() {
+    this.step = 'Sincronizando produtos da tabela de preço';
+    await this.dbService.clear('sale_force_table_price_product').toPromise();
+    const tables = await this.dbService.getAll('sale_force_table_price').toPromise() as any[];
+    for (const table of tables) {
+      const products = await this.tablePriceService.getAllProduct(table.id).toPromise() as any;
+      debugger
+      for (const product of products.content) {
+        product.tableId = table.id;
+        await this.dbService.add('sale_force_table_price_product', product).toPromise();
+      }
+    }
+  }
+
+  private async loadTablePrice() {
+    this.step = 'Sincronizando tabela de preço';
+    await this.dbService.clear('sale_force_table_price').toPromise();
+    const table = await this.tablePriceService.getAll(0).toPromise() as any;
+    await this.insertTable(table.content);
+    for (let i = 1; i < table.totalPages; i++) {
+      const tableFor = await this.tablePriceService.getAll(i).toPromise() as any;
+      this.insertCity(tableFor.content);
+    }
+  }
+
+  private async insertTable(table: any[]) {
+    if (table) {
+      for (const t of table) {
+        await this.dbService.add('sale_force_table_price', t).toPromise();
+      }
+    }
   }
 
   private async loadCity() {
