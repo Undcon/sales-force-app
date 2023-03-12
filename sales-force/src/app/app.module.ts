@@ -50,6 +50,10 @@ export function migrationFactory() {
       const store = transaction.objectStore('sale_force_table_time');
       store.createIndex('sale_force_table_time', 'id', { unique: true });
     },
+    9: (db: any, transaction: any) => {
+      const store = transaction.objectStore('sale_force_product');
+      store.createIndex('sale_force_product', 'id', { unique: true });
+    }
   };
 }
 
@@ -134,6 +138,18 @@ const dbConfig: DBConfig = {
     storeConfig: { keyPath: 'id', autoIncrement: false },
     storeSchema: [
       { name: 'name', keypath: 'name', options: { unique: false } }
+    ]
+  }, {
+    store: 'sale_force_product',
+    storeConfig: { keyPath: 'id', autoIncrement: false },
+    storeSchema: [
+      { name: 'customer', keypath: 'customer', options: { unique: false } },
+      { name: 'tablePrice', keypath: 'tablePrice', options: { unique: false } },
+      { name: 'tablePaymentTerm', keypath: 'tablePaymentTerm', options: { unique: false } },
+      { name: 'observation', keypath: 'observation', options: { unique: false } },
+      { name: 'items', keypath: 'items', options: { unique: false } },
+      { name: 'createdAt', keypath: 'createdAt', options: { unique: false } },
+      { name: 'sync', keypath: 'sync', options: { unique: false } }
     ]
   }],
   migrationFactory

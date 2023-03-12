@@ -6,26 +6,26 @@
 </ion-header>
 
 <ion-content>
-  <div class="container mt-3">
+  <div class="container mt-3" [formGroup]="form">
     <ion-segment mode="ios" [value]="segment" (ionChange)="onSegmentChage($event)">
       <ion-segment-button value="product">Pedido</ion-segment-button>
       <ion-segment-button value="items">Itens do pedido</ion-segment-button>
     </ion-segment>
     <span (click)="customerModal.present()" *ngIf="segment === 'product'" class="p-float-label mt-3">
-      <input id="float-input" class="w-100" type="text" pInputText>
+      <input readonly [value]="form.get('customer')?.value?.name" id="float-input" class="w-100" type="text" pInputText>
       <label for="float-input">Selecione o cliente</label>
     </span>
     <span (click)="tablePriceModal.present()" *ngIf="segment === 'product'" class="p-float-label mt-3">
-      <input id="float-input" class="w-100" type="text" pInputText>
+      <input readonly [value]="form.get('tablePrice')?.value?.name" id="float-input" class="w-100" type="text" pInputText>
       <label for="float-input">Selecione a tabela de preço</label>
     </span>
     <span (click)="tableTimeModal.present()" *ngIf="segment === 'product'" class="p-float-label mt-3">
-      <input id="float-input" class="w-100" type="text" pInputText>
+      <input readonly [value]="form.get('tablePaymentTerm')?.value?.name" id="float-input" class="w-100" type="text" pInputText>
       <label for="float-input">Selecione a tabela de prazo</label>
     </span>
     <span *ngIf="segment === 'product'" class="p-float-label mt-3">
-      <textarea id="float-input" class="w-100" type="text" pInputText></textarea>
-      <label for="float-input">Selecione observações</label>
+      <textarea formControlName="observation" id="float-input" class="w-100" type="text" pInputText></textarea>
+      <label for="float-input">Digite as observações</label>
     </span>
     <span *ngIf="segment === 'items'" class="p-float-label mt-3">
       <input id="float-input" class="w-100" type="text" pInputText>
@@ -43,7 +43,7 @@
       <ion-icon name="file-tray-outline" style="font-size: 100px;"></ion-icon>
       <h3>Nenhum item vinculado</h3>
     </div>
-    <ion-button *ngIf="segment === 'product'" class="w-100">Salvar</ion-button>
+    <ion-button (click)="save()" *ngIf="segment === 'product'" class="w-100">Salvar</ion-button>
   </div>
 </ion-content>
 
@@ -63,7 +63,7 @@
       <ion-searchbar [(ngModel)]="customerFilter" (ngModelChange)="onCustomerFilter()" mode="ios"
         placeholder="Pesquisar"></ion-searchbar>
       <ion-list *ngIf="customers?.length">
-        <ion-item *ngFor="let item of customers">
+        <ion-item (click)="onSelectCustomer(item, customerModal)" *ngFor="let item of customers">
           <ion-label>
             <h2>{{item.name}}</h2>
             <p *ngIf="item.cpfCnpj" style="font-size: 12px;" class="text-muted">{{item.cpfCnpj | mask:
@@ -101,7 +101,7 @@
       <ion-searchbar [(ngModel)]="tablePriceFilter" (ngModelChange)="onTablePriceFilter()" mode="ios"
         placeholder="Pesquisar"></ion-searchbar>
       <ion-list *ngIf="tablePrices?.length">
-        <ion-item *ngFor="let item of tablePrices">
+        <ion-item (click)="onSelectTablePrice(item, tablePriceModal)" *ngFor="let item of tablePrices">
           <ion-label>
             <h2>{{item.name}}</h2>
           </ion-label>
@@ -137,7 +137,7 @@
       <ion-searchbar [(ngModel)]="tableTimesFilter" (ngModelChange)="onTableTimeFilter()" mode="ios"
         placeholder="Pesquisar"></ion-searchbar>
       <ion-list *ngIf="tableTimes?.length">
-        <ion-item *ngFor="let item of tableTimes">
+        <ion-item (click)="onSelectTableTime(item, tableTimeModal)" *ngFor="let item of tableTimes">
           <ion-label>
             <h2>{{item.name}}</h2>
           </ion-label>
