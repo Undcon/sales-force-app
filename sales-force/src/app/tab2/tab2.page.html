@@ -1,6 +1,6 @@
 <ion-header [collapse]="isIos ? 'condense' : ''">
   <ion-toolbar mode="ios">
-    <ion-title>Produtos</ion-title>
+    <ion-title>Pedidos</ion-title>
     <ion-buttons slot="end">
       <ion-button [routerLink]="['/', 'features', 'tab2', 'product-register', 'new']">Adicionar</ion-button>
     </ion-buttons>
@@ -8,18 +8,27 @@
 </ion-header>
 
 <ion-content>
-  <ion-searchbar [(ngModel)]="customerFilter" (ngModelChange)="onCustomerFilter()" mode="ios" placeholder="Pesquisar por cliente"></ion-searchbar>
+  <ion-searchbar [(ngModel)]="customerFilter" (ngModelChange)="onCustomerFilter()" mode="ios"
+    placeholder="Pesquisar por cliente"></ion-searchbar>
   <ion-list>
-    <ion-item *ngFor="let item of product">
-      <ion-label>
-        <h5 *ngIf="item?.customer?.name">Cliente: {{item?.customer?.name}}</h5>
-        <h5 *ngIf="!item?.customer?.name">Esboço: {{item?.createdAt}}</h5>
-        <p style="font-size: 12px;" class="text-muted mb-0 pb-0">Tabela de preço: {{item?.tablePrice?.name || 'Não informado'}}
-        </p>
-        <p style="font-size: 12px;" class="text-muted mt-0 pt-0">Tabela de prazo: {{item?.tablePaymentTerm?.name || 'Não informado'}}</p>
-      </ion-label>
-      <ion-badge *ngIf="item.sync === 0">Sincronizando</ion-badge>
-      <ion-badge *ngIf="item.sync === -1">Esboço</ion-badge>
-    </ion-item>
+    <ion-item-sliding *ngFor="let item of product">
+      <ion-item>
+        <ion-label [routerLink]="['/', 'features', 'tab2', 'product-register', item.id]">
+          <h5 *ngIf="item?.customer?.name">Cliente: {{item?.customer?.name}}</h5>
+          <h5 *ngIf="!item?.customer?.name">Esboço: {{item?.createdAt}}</h5>
+          <p style="font-size: 12px;" class="text-muted mb-0 pb-0">Tabela de preço: {{item?.tablePrice?.name || 'Não informado'}}
+          </p>
+          <p style="font-size: 12px;" class="text-muted mt-0 pt-0">Tabela de prazo: {{item?.tablePaymentTerm?.name || 'Não informado'}}</p>
+        </ion-label>
+        <ion-badge [routerLink]="['/', 'features', 'tab2', 'product-register', item.id]"
+          *ngIf="item.sync === 0">Sincronizando</ion-badge>
+        <ion-badge [routerLink]="['/', 'features', 'tab2', 'product-register', item.id]"
+          *ngIf="item.sync === -1">Esboço</ion-badge>
+      </ion-item>
+      <ion-item-options>
+        <ion-item-option [routerLink]="['/', 'features', 'tab2', 'product-register', item.id]">Editar</ion-item-option>
+        <ion-item-option (click)="delete(item.id)" color="danger">Remover</ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
   </ion-list>
 </ion-content>

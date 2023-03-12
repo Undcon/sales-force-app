@@ -1,7 +1,7 @@
 <ion-header [collapse]="isIos ? 'condense' : ''">
   <ion-toolbar mode="ios">
     <ion-back-button slot="start" defaultHref="/features/tab1" text="Voltar"></ion-back-button>
-    <ion-title>Novo de cliente</ion-title>
+    <ion-title>{{isNew ? 'Novo' : 'Atualizar'}} cliente</ion-title>
   </ion-toolbar>
 </ion-header>
 

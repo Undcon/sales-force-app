@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Platform } from '@ionic/angular';
+import { AlertController, Platform } from '@ionic/angular';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
 
 @Component({
@@ -18,7 +18,8 @@ export class Tab2Page implements OnInit {
 
   constructor(
     private platform: Platform,
-    private dbService: NgxIndexedDBService
+    private dbService: NgxIndexedDBService,
+    private alertController: AlertController
   ) {}
 
   ngOnInit() {
@@ -48,5 +49,28 @@ export class Tab2Page implements OnInit {
         }
       }
     }
+  }
+
+  public async delete(id: string) {
+    const alert = await this.alertController.create({
+      header: 'Remover peido',
+      message: 'Ao remover um pedido não será possível desfazer está operação!',
+      buttons: [
+        {
+          text: 'Cancelar',
+        },
+        {
+          text: 'Remover',
+          cssClass: 'alert-button-confirm',
+          handler: () => {
+            this.dbService.deleteByKey('sale_force_product', id).subscribe();
+            this.product = this.product.filter(c => c.id !== id);
+            this._product = this._product.filter(c => c.id !== id);
+          }
+        },
+      ],
+    });
+
+    await alert.present();
   }
 }

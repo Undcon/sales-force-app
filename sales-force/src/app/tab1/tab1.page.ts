@@ -16,7 +16,6 @@ export class Tab1Page implements OnInit {
   private _customers = [] as Customer[];
   public customers = [] as Customer[];
 
-
   public filterField = '';
 
   constructor(

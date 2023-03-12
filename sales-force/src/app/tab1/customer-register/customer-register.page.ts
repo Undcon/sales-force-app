@@ -29,6 +29,8 @@ export class CustomerRegisterPage implements OnInit {
 
   public cityFilter = '';
 
+  public isNew = true;
+
   constructor(
     private formBuilder: FormBuilder,
     private platform: Platform,
@@ -92,6 +94,7 @@ export class CustomerRegisterPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.isNew = this.activatedRoute.snapshot.params['id'] === 'new';
     this.dbService.getAll('sale_force_state').subscribe(states => {
       this.states = states as any[];
       this.cdr.detectChanges();
