@@ -77,6 +77,9 @@ export class ProductRegisterPage implements OnInit {
     this._tableTimes = this.activatedRoute.snapshot.data['tableTimes'];
     if (this.activatedRoute.snapshot.data['entity']) {
       this.selectedItems = this.activatedRoute.snapshot.data['entity'].items;
+      if (!this.selectedItems) {
+        this.selectedItems = [];
+      }
       this.form.patchValue(this.activatedRoute.snapshot.data['entity']);
     }
   }
@@ -87,12 +90,12 @@ export class ProductRegisterPage implements OnInit {
 
   public async save() {
     const form = this.form.getRawValue();
+    form.items = this.selectedItems;
     if (!form.items?.length) {
       form.sync = -1;
     } else {
       form.sync = 0;
     }
-    form.items = this.selectedItems;
     if (this.activatedRoute.snapshot.params['id'] === 'new') {
       form.createdAt = new Date().toJSON();
       form.id = uuidv4();
@@ -150,7 +153,7 @@ export class ProductRegisterPage implements OnInit {
   public addItem() {
     if (this.itemForm.valid) {
       const form = this.itemForm.getRawValue();
-      form.sync = -1;
+      form.sync = 0;
       if (!form.id) {
         form.id = uuidv4();
       } else {

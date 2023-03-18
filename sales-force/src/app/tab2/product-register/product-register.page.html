@@ -44,11 +44,11 @@
       <ion-button>{{itemForm.get('id')?.value ? 'Atualizar item' : 'Vincular item'}}</ion-button>
     </div>
     <h2 *ngIf="segment === 'items'">Itens no pedido</h2>
-    <div class="text-center text-muted mt-5" *ngIf="segment === 'items' && !selectedItems.length">
+    <div class="text-center text-muted mt-5" *ngIf="segment === 'items' && !selectedItems?.length">
       <ion-icon name="file-tray-outline" style="font-size: 100px;"></ion-icon>
       <h3>Nenhum item vinculado</h3>
     </div>
-    <div class="text-center text-muted mt-3 pl-0 ml-0" *ngIf="segment === 'items' && selectedItems.length">
+    <div class="text-center text-muted mt-3 pl-0 ml-0" *ngIf="segment === 'items' && selectedItems?.length">
       <ion-list>
         <ion-item-sliding *ngFor="let item of selectedItems">
           <ion-item class="no-padding">
