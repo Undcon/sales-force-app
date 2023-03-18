@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NavController, Platform } from '@ionic/angular';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
@@ -18,7 +18,7 @@ export class ProductRegisterPage implements OnInit {
 
   public isIos = false;
 
-  public segment = 'items';
+  public segment = 'product';
 
   public _items = [] as any[];
   public items = [] as any[];
@@ -38,7 +38,13 @@ export class ProductRegisterPage implements OnInit {
 
   public form: FormGroup;
 
+  public selectedItems = [] as any[];
+
+  public itemForm: FormGroup;
+
   public isNew = true;
+
+  public productPage = 1;
 
   constructor(
     private platform: Platform,
@@ -57,6 +63,11 @@ export class ProductRegisterPage implements OnInit {
       tablePaymentTerm: [],
       observation: []
     });
+    this.itemForm = this.formBuilder.group({
+      id: [],
+      name: [null],
+      quantity: [null, Validators.compose([Validators.required])]
+    });
   }
 
   ionViewWillEnter() {
@@ -65,6 +76,7 @@ export class ProductRegisterPage implements OnInit {
     this._tablePrices = this.activatedRoute.snapshot.data['tablePrices'];
     this._tableTimes = this.activatedRoute.snapshot.data['tableTimes'];
     if (this.activatedRoute.snapshot.data['entity']) {
+      this.selectedItems = this.activatedRoute.snapshot.data['entity'].items;
       this.form.patchValue(this.activatedRoute.snapshot.data['entity']);
     }
   }
@@ -72,7 +84,7 @@ export class ProductRegisterPage implements OnInit {
   onSegmentChage(event: any) {
     this.segment = event.detail.value;
   }
-  
+
   public async save() {
     const form = this.form.getRawValue();
     if (!form.items?.length) {
@@ -80,6 +92,7 @@ export class ProductRegisterPage implements OnInit {
     } else {
       form.sync = 0;
     }
+    form.items = this.selectedItems;
     if (this.activatedRoute.snapshot.params['id'] === 'new') {
       form.createdAt = new Date().toJSON();
       form.id = uuidv4();
@@ -129,6 +142,36 @@ export class ProductRegisterPage implements OnInit {
     this.form.get('tablePaymentTerm')?.patchValue(table);
   }
 
+  public onSelectItem(item: any, modal: any) {
+    this.itemForm.get('name')?.patchValue(item);
+    modal.dismiss();
+  }
+
+  public addItem() {
+    if (this.itemForm.valid) {
+      const form = this.itemForm.getRawValue();
+      form.sync = -1;
+      if (!form.id) {
+        form.id = uuidv4();
+      } else {
+        this.removeItem(form.id);
+      }
+      this.selectedItems.push(form);
+      this.itemForm.reset();
+    } else {
+      this.form.markAllAsTouched();
+    }
+  }
+
+  public removeItem(id: string) {
+    this.selectedItems = this.selectedItems.filter(s => s.id !== id);
+  }
+
+  public edit(id: string) {
+    const item = this.selectedItems.find(s => s.id === id);
+    this.itemForm.patchValue(item);
+  }
+
   public async showItens() {
     this._items = await this.dbService.getAllByIndex('sale_force_table_price_product', 'tableId', this.form.get('tablePrice')?.value?.id).toPromise() as any[];
     this.items = [];
@@ -136,10 +179,11 @@ export class ProductRegisterPage implements OnInit {
       if (this._items[i]) {
         this.items.push(JSON.parse(JSON.stringify(this._items[i])));
         if (this.items[i].price) {
-          this.items[i].price = parseFloat(this.items[i].price).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'});
+          this.items[i].price = parseFloat(this.items[i].price).toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
         }
       }
     }
+    this.productPage = 1;
     this.modalItem.present();
   }
 
@@ -154,11 +198,21 @@ export class ProductRegisterPage implements OnInit {
         }
       }
     }
+    this.productPage = 1;
     this.items.forEach(i => {
       if (i.price) {
-        debugger
-        i.price = parseFloat(i.price).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'});
+        i.price = parseFloat(i.price).toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
       }
     });
+  }
+
+  public onProductsLoadMore(event: any) {
+    this.productPage++;
+    for (let i = ((100 * this.productPage) - 100); i < (100 * this.productPage); i++) {
+      if (this._items[i]) {
+        this.items.push(JSON.parse(JSON.stringify(this._items[i])));
+      }
+    }
+    event.target.complete();
   }
 }

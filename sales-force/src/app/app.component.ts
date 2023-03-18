@@ -22,11 +22,6 @@ export class AppComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.dbService.getAll('sale_force_session').subscribe(session => {
-      if (session?.length) {
-        this.router.navigate(['/', 'sync']);
-      }
-    });
     setInterval(async () => {
       await this.syncService.sync();
       this.cdr.detectChanges();

@@ -20,7 +20,7 @@ export function migrationFactory() {
   return {
     1: (db: any, transaction: any) => {
       const store = transaction.objectStore('sale_force_session');
-      store.createIndex('sale_force_session', 'id', { unique: false });
+      store.createIndex('sale_force_session', 'id', { unique: true });
     },
     2: (db: any, transaction: any) => {
       const store = transaction.objectStore('sale_force_customer');

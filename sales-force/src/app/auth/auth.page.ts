@@ -4,6 +4,8 @@ import { Router } from '@angular/router';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
 import { SessionService } from '../core/entity/session/session.service';
 
+import { v4 as uuidv4 } from 'uuid';
+
 @Component({
   selector: 'app-auth',
   templateUrl: './auth.page.html',
@@ -33,7 +35,8 @@ export class AuthPage implements OnInit {
       const form = this.form.getRawValue();
       form.token = response.token;
       localStorage.setItem('token', response.token);
-      await this.dbService.add('sale_force_session', form);
+      form.id = uuidv4();
+      await this.dbService.add('sale_force_session', form).toPromise();
       this.router.navigate(['/sync']);
     } else {
       this.form.markAllAsTouched();

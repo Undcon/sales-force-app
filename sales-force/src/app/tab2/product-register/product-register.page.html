@@ -16,34 +16,55 @@
       <label for="float-input">Selecione o cliente</label>
     </span>
     <span (click)="tablePriceModal.present()" *ngIf="segment === 'product'" class="p-float-label mt-3">
-      <input readonly [value]="form.get('tablePrice')?.value?.name" id="float-input" class="w-100" type="text" pInputText>
+      <input readonly [value]="form.get('tablePrice')?.value?.name" id="float-input" class="w-100" type="text"
+        pInputText>
       <label for="float-input">Selecione a tabela de preço</label>
     </span>
     <span (click)="tableTimeModal.present()" *ngIf="segment === 'product'" class="p-float-label mt-3">
-      <input readonly [value]="form.get('tablePaymentTerm')?.value?.name" id="float-input" class="w-100" type="text" pInputText>
+      <input readonly [value]="form.get('tablePaymentTerm')?.value?.name" id="float-input" class="w-100" type="text"
+        pInputText>
       <label for="float-input">Selecione a tabela de prazo</label>
     </span>
     <span *ngIf="segment === 'product'" class="p-float-label mt-3">
       <textarea formControlName="observation" id="float-input" class="w-100" type="text" pInputText></textarea>
       <label for="float-input">Digite as observações</label>
     </span>
+  </div>
+  <div class="container mt-3" [formGroup]="itemForm">
     <span *ngIf="segment === 'items'" class="p-float-label mt-3">
-      <input readonly (click)="showItens()" id="float-input" class="w-100" type="text" pInputText>
+      <input readonly [value]="itemForm.get('name')?.value?.product?.name" (click)="showItens()" id="float-input"
+        class="w-100" type="text" pInputText>
       <label for="float-input">Selecione o item</label>
     </span>
     <span *ngIf="segment === 'items'" class="p-float-label mt-3">
-      <input id="float-input" class="w-100" type="text" pInputText>
+      <input formControlName="quantity" id="float-input" class="w-100" type="number" pInputText>
       <label for="float-input">Digite a quantidade</label>
     </span>
-    <div class="text-right" *ngIf="segment === 'items'">
-      <ion-button>Vincular item</ion-button>
+    <div (click)="addItem()" class="text-right" *ngIf="segment === 'items'">
+      <ion-button>{{itemForm.get('id')?.value ? 'Atualizar item' : 'Vincular item'}}</ion-button>
     </div>
     <h2 *ngIf="segment === 'items'">Itens no pedido</h2>
-    <div class="text-center text-muted mt-5" *ngIf="segment === 'items'">
+    <div class="text-center text-muted mt-5" *ngIf="segment === 'items' && !selectedItems.length">
       <ion-icon name="file-tray-outline" style="font-size: 100px;"></ion-icon>
       <h3>Nenhum item vinculado</h3>
     </div>
-    <ion-button (click)="save()" *ngIf="segment === 'product'" class="w-100">Salvar</ion-button>
+    <div class="text-center text-muted mt-3 pl-0 ml-0" *ngIf="segment === 'items' && selectedItems.length">
+      <ion-list>
+        <ion-item-sliding *ngFor="let item of selectedItems">
+          <ion-item class="no-padding">
+            <ion-label>
+              <h4>{{item?.name?.product?.name}} ({{item?.name?.price}})</h4>
+              <p>{{item?.quantity}} itens</p>
+            </ion-label>
+          </ion-item>
+          <ion-item-options>
+            <ion-item-option (click)="edit(item.id)">Editar</ion-item-option>
+            <ion-item-option (click)="removeItem(item.id)" color="danger">Remover</ion-item-option>
+          </ion-item-options>
+        </ion-item-sliding>
+      </ion-list>
+    </div>
+    <ion-button (click)="save()" class="w-100 {{segment === 'items' ? 'mt-5' : ''}}">Salvar</ion-button>
   </div>
 </ion-content>
 
@@ -172,7 +193,7 @@
       <ion-searchbar [(ngModel)]="productFilter" (ngModelChange)="onProductFilter()" mode="ios"
         placeholder="Pesquisar"></ion-searchbar>
       <ion-list *ngIf="items?.length">
-        <ion-item (click)="onSelectTableTime(item, tableTimeModal)" *ngFor="let item of items">
+        <ion-item (click)="onSelectItem(item, modalItem)" *ngFor="let item of items">
           <ion-label>
             <h2>{{item?.product?.name}}</h2>
             <p class="text-muted" style="font-size: 12px;">Preço: {{item?.price || 'Não informado'}}</p>
@@ -184,6 +205,9 @@
         <ion-icon name="file-tray-outline" style="font-size: 100px;"></ion-icon>
         <h2>Nenhum item encontrado</h2>
       </div>
+      <ion-infinite-scroll (ionInfinite)="onProductsLoadMore($event)">
+        <ion-infinite-scroll-content></ion-infinite-scroll-content>
+      </ion-infinite-scroll>
     </ion-content>
   </ng-template>
 </ion-modal>

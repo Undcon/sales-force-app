@@ -18,6 +18,8 @@ export class Tab1Page implements OnInit {
 
   public filterField = '';
 
+  public page = 1;
+
   constructor(
     private platform: Platform,
     private dbService: NgxIndexedDBService,
@@ -40,22 +42,51 @@ export class Tab1Page implements OnInit {
           c.sync = true;
         }
       });
+      this.page = 1;
     });
   }
 
   ionViewWillEnter() {
     this.dbService.getAll('sale_force_customer').subscribe((customers: any[]) => {
       this._customers = customers;
-      this.customers = customers;
+      this.customers = [];
+      for (let i = 0; i < 100; i++) {
+        if (this._customers[i]) {
+          if (this._customers[i]) {
+            this.customers.push(this._customers[i]);
+          }
+        }
+      }
+      this.page = 1;
     });
+  }
+
+  public loadMore(event: any) {
+    this.page ++;
+    for (let i = ((100 * this.page) - 100); i < (100 * this.page); i++) {
+      if (this._customers[i]) {
+        if (this._customers[i]) {
+          this.customers.push(this._customers[i]);
+        }
+      }
+    }
+    event.target.complete();
   }
 
   public filter() {
     if (this.filterField) {
       this.customers = this._customers.filter(c => c.name.toLowerCase().includes(this.filterField.toLowerCase()));
     } else {
-      this.customers = this._customers;
+      this.customers = [];
+      for (let i = 0; i < 100; i++) {
+        if (this._customers[i]) {
+          if (this._customers[i]) {
+            this.customers.push(this._customers[i]);
+          }
+        }
+      }
     }
+    this.page = 1;
   }
 
   public async delete(id: any) {
