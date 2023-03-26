@@ -1,6 +1,7 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
 import { CustomerService } from '../customer/customer.service';
+import { Order, OrderService } from '../order/order.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +14,8 @@ export class SyncService {
 
   constructor(
     private dbService: NgxIndexedDBService,
-    private custormService: CustomerService
+    private custormService: CustomerService,
+    private orderService: OrderService
   ) { }
 
   public errorSubs() {
@@ -26,6 +28,73 @@ export class SyncService {
 
   public async sync() {
     await this.syncCustomer();
+    await this.syncOrder();
+  }
+
+  private async syncOrder() {
+    try {
+      const orders = await this.dbService.getAllByIndex('sale_force_product', 'sync', IDBKeyRange.only(0)).toPromise() as any[];
+      for (const order of orders) {
+        if (isNaN(order.id as any)) {
+          order.oldid = order.id;
+          delete order.id;
+          try {
+            const o = await this.orderService.create(order).toPromise() as any;
+            await this.dbService.delete('sale_force_product', order.oldid).toPromise();
+            order.id = o.id.toString();
+            order.sync = 1;
+            await this.dbService.add('sale_force_product', order).toPromise();
+          } catch (err: any) {
+            this.error.emit(1);
+            order.sync = 1;
+            order.id = order.oldid;
+            order.error = err.error?.message ? err.error?.message : JSON.stringify(err.error);
+            if (err.status === 0) {
+              order.error = 'O servidores não estão disponíveis, não se preocupe, tentaremos novamente mais tarde.'
+            }
+            await this.dbService.update('sale_force_product', order).toPromise();
+            await this.dbService.add('sale_force_log', {
+              log: `Erro ao inserir pedido`,
+              id: order.oldid,
+              type: 'order'
+            }).toPromise();
+          }
+        } else {
+          order.sync = 1;
+          try {
+            await this.orderService.update(order).toPromise() as any;
+            order.id = order.id.toString();
+            if (order.items) {
+              for (let item of order.items) {
+                debugger
+                if (item.sync === 0) {
+                  if (isNaN(item.id)) {
+                    const response = await this.orderService.addItem(item, order.id).toPromise() as any;
+                    item.id = response.id;
+                  }
+                }
+              }
+            }
+            await this.dbService.update('sale_force_product', order).toPromise();
+          } catch (err: any) {
+            this.error.emit(1);
+            order.id = order.id.toString();
+            order.error = err.error?.message ? err.error?.message : JSON.stringify(err.error);
+            if (err.status === 0) {
+              order.error = 'O servidores não estão disponíveis, não se preocupe, tentaremos novamente mais tarde.'
+            }
+            await this.dbService.update('sale_force_order', order).toPromise();
+            await this.dbService.add('sale_force_log', {
+              log: `Erro ao atualizar o cliente ${order.name}`,
+              id: order.oldid,
+              type: 'customer'
+            }).toPromise();
+          }
+        }
+      }
+    } catch (err) {
+
+    }
   }
 
   private async syncCustomer() {

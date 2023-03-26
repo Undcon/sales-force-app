@@ -1,9 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { AppComponent } from 'src/app/app.component';
 import { environment } from 'src/environments/environment';
-
-import { v4 as uuidv4 } from 'uuid';
 
 @Injectable({
   providedIn: 'root'

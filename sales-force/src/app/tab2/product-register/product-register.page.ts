@@ -92,7 +92,7 @@ export class ProductRegisterPage implements OnInit {
     const form = this.form.getRawValue();
     form.items = this.selectedItems;
     if (!form.items?.length) {
-      form.sync = -1;
+      form.sync = 0;
     } else {
       form.sync = 0;
     }

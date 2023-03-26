@@ -11,27 +11,30 @@ class CanActivateLogin implements CanActivate {
     private dbService: NgxIndexedDBService,
     private router: Router,
     private sessionService: SessionService
-  ) {}
+  ) { }
 
   async canActivate() {
-    debugger
-    const session = await this.dbService.getAll('sale_force_session').toPromise();
-    if (session?.length) {
-      if (navigator.onLine) {
-        try {
-          const response = await this.sessionService.login(session[0] as any).toPromise() as any;
-          localStorage.setItem('token', response.token);
+    try {
+      const session = await this.dbService.getAll('sale_force_session').toPromise();
+      if (session?.length) {
+        if (navigator.onLine) {
+          try {
+            const response = await this.sessionService.login(session[0] as any).toPromise() as any;
+            localStorage.setItem('token', response.token);
+            this.router.navigate(['/', 'features', 'tab2']);
+            return false;
+          } catch (err) {
+            return true;
+          }
+        } else {
           this.router.navigate(['/', 'features', 'tab2']);
           return false;
-        } catch (err) {
-          return true;
         }
-      } else {
-        this.router.navigate(['/', 'features', 'tab2']);
-        return false;
       }
+      return true;
+    } catch (err) {
+      return true;
     }
-    return true;
   }
 }
 
@@ -42,12 +45,12 @@ const routes: Routes = [
   },
   {
     path: 'sync',
-    loadChildren: () => import('./sync/sync.module').then( m => m.SyncPageModule)
+    loadChildren: () => import('./sync/sync.module').then(m => m.SyncPageModule)
   },
   {
     path: '',
     canActivate: [CanActivateLogin],
-    loadChildren: () => import('./auth/auth.module').then( m => m.AuthPageModule)
+    loadChildren: () => import('./auth/auth.module').then(m => m.AuthPageModule)
   }
 ];
 @NgModule({
@@ -56,4 +59,4 @@ const routes: Routes = [
   ],
   exports: [RouterModule]
 })
-export class AppRoutingModule {}
+export class AppRoutingModule { }
