@@ -16,6 +16,15 @@
         <ion-button color="danger" fill="clear" slot="end"
           [routerLink]="['/', 'features', 'tab1', 'customer-register', log.id]">Ver motivo</ion-button>
       </ion-item>
+      <ion-item (click)="deleteNotification(log.id)" *ngIf="log.type === 'order'">
+        <ion-icon color="medium" name="cart" slot="start"></ion-icon>
+        <ion-note [routerLink]="['/', 'features', 'tab2', 'product-register', log.id]">
+          <h6 class="pb-0 mb-0">{{log.log}}</h6>
+          <p style="font-size: 12px;" *ngIf="log.type === 'order'">Notificações de pedido</p>
+        </ion-note>
+        <ion-button color="danger" fill="clear" slot="end"
+          [routerLink]="['/', 'features', 'tab2', 'product-register', log.id]">Ver motivo</ion-button>
+      </ion-item>
       <ion-item-options>
         <ion-item-option color="danger">Remover</ion-item-option>
       </ion-item-options>

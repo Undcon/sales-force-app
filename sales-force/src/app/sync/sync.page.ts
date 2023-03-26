@@ -74,7 +74,7 @@ export class SyncPage implements OnInit {
   private async loadKit() {
     this.step = 'Sincronizando kit de produtos';
     const kits = await this.orderService.getProductKit().toPromise() as any;
-    await this.dbService.clear('sale_force_table_price').toPromise();
+    await this.dbService.clear('sale_force_product_kit').toPromise();
     for (const kit of kits.content) {
       const itens = await this.orderService.getProductKitItens(kit.id).toPromise() as any;
       kit.items = itens.content;
@@ -93,7 +93,19 @@ export class SyncPage implements OnInit {
           order.tablePrice = order.tableOfPrice;
           order.tablePaymentTerm = order.tableOfPaymentTerm;
           order.observation = order.observations;
-          debugger
+          try {
+            const itens = await this.orderService.getAllItems(order.id).toPromise() as any;
+            order.items = itens.content.map((c: any) => {
+              return {
+                id: c.id,
+                quantity: c.quantity || 1,
+                name: {
+                  id: c.productKit.id,
+                  name: c.productKit.name
+                }
+              }
+            })
+          } catch (err) { }
           if (item) {
             await this.dbService.update('sale_force_product', order).toPromise();
           } else {

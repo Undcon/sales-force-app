@@ -11,6 +11,7 @@ export class SyncService {
   private error = new EventEmitter();
 
   private customerSync = new EventEmitter();
+  private orderSync = new EventEmitter();
 
   constructor(
     private dbService: NgxIndexedDBService,
@@ -24,6 +25,10 @@ export class SyncService {
 
   public getCustomerSync() {
     return this.customerSync.asObservable();
+  }
+
+  public getOrderSync() {
+    return this.orderSync.asObservable();
   }
 
   public async sync() {
@@ -64,9 +69,14 @@ export class SyncService {
           try {
             await this.orderService.update(order).toPromise() as any;
             order.id = order.id.toString();
+            if (order?.deleteds?.length) {
+              for (let deleted of order.deleteds) {
+                await this.orderService.deleteItem(order.id, deleted).toPromise();
+              }
+              order.deleteds = [];
+            }
             if (order.items) {
               for (let item of order.items) {
-                debugger
                 if (item.sync === 0) {
                   if (isNaN(item.id)) {
                     const response = await this.orderService.addItem(item, order.id).toPromise() as any;
@@ -79,21 +89,24 @@ export class SyncService {
           } catch (err: any) {
             this.error.emit(1);
             order.id = order.id.toString();
+            order.sync = 1;
             order.error = err.error?.message ? err.error?.message : JSON.stringify(err.error);
             if (err.status === 0) {
               order.error = 'O servidores não estão disponíveis, não se preocupe, tentaremos novamente mais tarde.'
             }
-            await this.dbService.update('sale_force_order', order).toPromise();
+            await this.dbService.update('sale_force_product', order).toPromise();
             await this.dbService.add('sale_force_log', {
-              log: `Erro ao atualizar o cliente ${order.name}`,
-              id: order.oldid,
-              type: 'customer'
+              log: `Erro ao atualizar o pedido`,
+              id: order.id,
+              type: 'order'
             }).toPromise();
           }
         }
       }
+      this.orderSync.emit();
     } catch (err) {
-
+      console.log(err);
+      
     }
   }
 

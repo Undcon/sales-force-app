@@ -24,7 +24,6 @@ export class Tab3Page implements OnInit {
 
   ionViewWillEnter() {
     this.dbService.getAll('sale_force_log').subscribe((log: any[]) => {
-      debugger
       this.logs = log;
     });
   }

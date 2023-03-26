@@ -7,6 +7,8 @@
 
 <ion-content>
   <div class="container mt-3" [formGroup]="form">
+    <div class="mb-3" style="color: white; background: rgb(199, 38, 38); padding: 10px; border-radius: 10px;" *ngIf="error">{{error}}
+    </div>
     <ion-segment mode="ios" [value]="segment" (ionChange)="onSegmentChage($event)">
       <ion-segment-button value="product">Pedido</ion-segment-button>
       <ion-segment-button [disabled]="!form.get('tablePrice')?.value" value="items">Itens do pedido</ion-segment-button>

@@ -18,7 +18,7 @@ export class ProductRegisterPage implements OnInit {
 
   public isIos = false;
 
-  public segment = 'items';
+  public segment = 'product';
 
   public _items = [] as any[];
   public items = [] as any[];
@@ -46,6 +46,9 @@ export class ProductRegisterPage implements OnInit {
 
   public productPage = 1;
 
+  public deleted = [] as number[];
+  public error = '';
+
   constructor(
     private platform: Platform,
     private activatedRoute: ActivatedRoute,
@@ -71,6 +74,7 @@ export class ProductRegisterPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.deleted = [];
     this.isNew = this.activatedRoute.snapshot.params['id'] === 'new';
     this._customers = this.activatedRoute.snapshot.data['customers'];
     this._tablePrices = this.activatedRoute.snapshot.data['tablePrices'];
@@ -81,6 +85,12 @@ export class ProductRegisterPage implements OnInit {
         this.selectedItems = [];
       }
       this.form.patchValue(this.activatedRoute.snapshot.data['entity']);
+      this.error = this.activatedRoute.snapshot.data['entity']?.error;
+      if (this.activatedRoute.snapshot.data['entity']?.deleteds) {
+        this.deleted = this.activatedRoute.snapshot.data['entity']?.deleteds;
+      } else {
+        this.deleted = [];
+      }
     }
   }
 
@@ -91,11 +101,11 @@ export class ProductRegisterPage implements OnInit {
   public async save() {
     const form = this.form.getRawValue();
     form.items = this.selectedItems;
-    if (!form.items?.length) {
-      form.sync = 0;
-    } else {
-      form.sync = 0;
+    if (this.deleted && this.deleted.length) {
+      form.deleteds = this.deleted;
     }
+    form.sync = 0;
+    form.error = null;
     if (this.activatedRoute.snapshot.params['id'] === 'new') {
       form.createdAt = new Date().toJSON();
       form.id = uuidv4();
@@ -166,7 +176,10 @@ export class ProductRegisterPage implements OnInit {
     }
   }
 
-  public removeItem(id: string) {
+  public removeItem(id: any) {
+    if (!isNaN(id)) {
+      this.deleted.push(id);
+    }
     this.selectedItems = this.selectedItems.filter(s => s.id !== id);
   }
 
@@ -183,7 +196,7 @@ export class ProductRegisterPage implements OnInit {
         this.items.push(JSON.parse(JSON.stringify(this._items[i])));
         try {
           this.items[i].product = this._items[i].items.map((i: any) => i.product.name).join(', ');
-        } catch (err) {}
+        } catch (err) { }
       }
     }
     this.productPage = 1;

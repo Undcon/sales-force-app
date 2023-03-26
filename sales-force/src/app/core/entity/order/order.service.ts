@@ -47,8 +47,16 @@ export class OrderService {
     return this.http.post(`${environment.url}/salesOrders/${salesOrder}/itens`, payload);
   }
 
+  public deleteItem(orderId: any, itemId: any) {
+    return this.http.delete(`${environment.url}/salesOrders/${orderId}/itens/${itemId}`);
+  }
+
   public getAll() {
     return this.http.get(`${environment.url}/salesOrders?size=9999999`)
+  }
+
+  public getAllItems(orderId: any) {
+    return this.http.get(`${environment.url}/salesOrders/${orderId}/itens?size=9999999`)
   }
 
   public getProductKit() {

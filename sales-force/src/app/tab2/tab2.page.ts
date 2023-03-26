@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AlertController, Platform } from '@ionic/angular';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
+import { SyncService } from '../core/entity/sync/sync.service';
 
 @Component({
   selector: 'app-tab2',
@@ -19,10 +20,21 @@ export class Tab2Page implements OnInit {
   constructor(
     private platform: Platform,
     private dbService: NgxIndexedDBService,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private syncService: SyncService
   ) {}
 
   ngOnInit() {
+    this.syncService.getOrderSync().subscribe(async () => {
+      this._product = await this.dbService.getAll('sale_force_product').toPromise() as any[];
+      this.product.forEach(i => {
+        if (i.sync !== 1) {
+          const item = this._product.find((i2: any) => i2.id === i.id);
+          i.sync = item.sync;
+          i.error = item.error;
+        }
+      });
+    });
     this.isIos = this.platform.is('ios');
   }
 
