@@ -66,8 +66,8 @@ export class SyncPage implements OnInit {
     await this.loadTablePrice();
     await this.loadTableTime();
     await this.syncTablePriceProduct();
-    await this.loadProducts();
     await this.loadKit();
+    await this.loadProducts();
     this.router.navigate(['/', 'features', 'tab1']);
   }
 
@@ -93,6 +93,7 @@ export class SyncPage implements OnInit {
           order.tablePrice = order.tableOfPrice;
           order.tablePaymentTerm = order.tableOfPaymentTerm;
           order.observation = order.observations;
+          debugger
           if (item) {
             await this.dbService.update('sale_force_product', order).toPromise();
           } else {

@@ -32,9 +32,9 @@
   </div>
   <div class="container mt-3" [formGroup]="itemForm">
     <span *ngIf="segment === 'items'" class="p-float-label mt-3">
-      <input readonly [value]="itemForm.get('name')?.value?.product?.name" (click)="showItens()" id="float-input"
+      <input readonly [value]="itemForm.get('name')?.value?.name" (click)="showItens()" id="float-input"
         class="w-100" type="text" pInputText>
-      <label for="float-input">Selecione o item</label>
+      <label for="float-input">Selecione o kit</label>
     </span>
     <span *ngIf="segment === 'items'" class="p-float-label mt-3">
       <input formControlName="quantity" id="float-input" class="w-100" type="number" pInputText>
@@ -53,8 +53,8 @@
         <ion-item-sliding *ngFor="let item of selectedItems">
           <ion-item class="no-padding">
             <ion-label>
-              <h4>{{item?.name?.product?.name}} ({{item?.name?.price}})</h4>
-              <p>{{item?.quantity}} itens</p>
+              <h4>{{item?.name?.name}}</h4>
+              <p>{{item?.quantity}} quantidades</p>
             </ion-label>
           </ion-item>
           <ion-item-options>
@@ -182,7 +182,7 @@
     <ion-header [collapse]="isIos ? 'condense' : ''" mode="ios">
       <ion-toolbar mode="ios">
         <ion-label>
-          <h2 class="font-weight-bold mb-0 pb-0 pl-1">Itens da tabela de preço</h2>
+          <h2 class="font-weight-bold mb-0 pb-0 pl-1">Kit de produtos</h2>
         </ion-label>
         <ion-button (click)="modalItem.dismiss()" fill="clear" slot="end">
           Cancelar
@@ -195,8 +195,8 @@
       <ion-list *ngIf="items?.length">
         <ion-item (click)="onSelectItem(item, modalItem)" *ngFor="let item of items">
           <ion-label>
-            <h2>{{item?.product?.name}}</h2>
-            <p class="text-muted" style="font-size: 12px;">Preço: {{item?.price || 'Não informado'}}</p>
+            <h2>{{item?.name}}</h2>
+            <p class="text-muted" style="font-size: 12px;">Itens: {{item?.product || 'Não informado'}}</p>
           </ion-label>
           <ion-button slot="end" fill="clear">Selecionar</ion-button>
         </ion-item>

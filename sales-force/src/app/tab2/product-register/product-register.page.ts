@@ -18,7 +18,7 @@ export class ProductRegisterPage implements OnInit {
 
   public isIos = false;
 
-  public segment = 'product';
+  public segment = 'items';
 
   public _items = [] as any[];
   public items = [] as any[];
@@ -176,14 +176,14 @@ export class ProductRegisterPage implements OnInit {
   }
 
   public async showItens() {
-    this._items = await this.dbService.getAllByIndex('sale_force_table_price_product', 'tableId', this.form.get('tablePrice')?.value?.id).toPromise() as any[];
+    this._items = await this.dbService.getAll('sale_force_product_kit').toPromise() as any[];
     this.items = [];
     for (let i = 0; i < 100; i++) {
       if (this._items[i]) {
         this.items.push(JSON.parse(JSON.stringify(this._items[i])));
-        if (this.items[i].price) {
-          this.items[i].price = parseFloat(this.items[i].price).toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
-        }
+        try {
+          this.items[i].product = this._items[i].items.map((i: any) => i.product.name).join(', ');
+        } catch (err) {}
       }
     }
     this.productPage = 1;
