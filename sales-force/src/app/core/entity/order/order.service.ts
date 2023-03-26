@@ -47,6 +47,10 @@ export class OrderService {
     return this.http.post(`${environment.url}/salesOrders/${salesOrder}/itens`, payload);
   }
 
+  public delete(orderId: any) {
+    return this.http.delete(`${environment.url}/salesOrders/${orderId}`);
+  }
+
   public deleteItem(orderId: any, itemId: any) {
     return this.http.delete(`${environment.url}/salesOrders/${orderId}/itens/${itemId}`);
   }

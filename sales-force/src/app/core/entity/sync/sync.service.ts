@@ -45,10 +45,16 @@ export class SyncService {
           delete order.id;
           try {
             const o = await this.orderService.create(order).toPromise() as any;
-            await this.dbService.delete('sale_force_product', order.oldid).toPromise();
             order.id = o.id.toString();
             order.sync = 1;
+            if (order.items) {
+              for (let item of order.items) {
+                const response = await this.orderService.addItem(item, order.id).toPromise() as any;
+                item.id = response.id;
+              }
+            }
             await this.dbService.add('sale_force_product', order).toPromise();
+            await this.dbService.delete('sale_force_product', order.oldid).toPromise();
           } catch (err: any) {
             this.error.emit(1);
             order.sync = 1;
@@ -106,7 +112,7 @@ export class SyncService {
       this.orderSync.emit();
     } catch (err) {
       console.log(err);
-      
+
     }
   }
 

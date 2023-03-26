@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { AlertController, Platform } from '@ionic/angular';
+import { AlertController, Platform, ToastController } from '@ionic/angular';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
-import { Customer } from '../core/entity/customer/customer.service';
+import { Customer, CustomerService } from '../core/entity/customer/customer.service';
 import { SyncService } from '../core/entity/sync/sync.service';
 
 @Component({
@@ -24,7 +24,9 @@ export class Tab1Page implements OnInit {
     private platform: Platform,
     private dbService: NgxIndexedDBService,
     private alertController: AlertController,
-    private syncService: SyncService
+    private syncService: SyncService,
+    private customerService: CustomerService,
+    private toastController: ToastController
   ) { }
 
   ngOnInit() {
@@ -90,25 +92,47 @@ export class Tab1Page implements OnInit {
   }
 
   public async delete(id: any) {
-    const alert = await this.alertController.create({
-      header: 'Remover cliente',
-      message: 'Ao remover um cliente não será possível desfazer está operação!',
-      buttons: [
-        {
-          text: 'Cancelar',
-        },
-        {
-          text: 'Remover',
-          cssClass: 'alert-button-confirm',
-          handler: () => {
-            this.dbService.deleteByKey('sale_force_customer', id).subscribe();
-            this.customers = this.customers.filter(c => c.id !== id);
-          }
-        },
-      ],
-    });
+    if (navigator.onLine) {
+      const alert = await this.alertController.create({
+        header: 'Remover cliente',
+        message: 'Ao remover um cliente não será possível desfazer está operação!',
+        buttons: [
+          {
+            text: 'Cancelar',
+          },
+          {
+            text: 'Remover',
+            cssClass: 'alert-button-confirm',
+            handler: () => {
+              if (!isNaN(id as any)) {
+                this.customerService.delete(id).subscribe(() => {
+                  this.dbService.deleteByKey('sale_force_customer', id).subscribe();
+                  this.customers = this.customers.filter(c => c.id !== id);
+                }, async err => {
+                  const toast = await this.toastController.create({
+                    message: err.error.message,
+                    duration: 4500,
+                    color: 'danger',
+                    position: 'top'
+                  });
+              
+                  await toast.present();
+                });
+              }
+            }
+          },
+        ],
+      });
 
-    await alert.present();
+      await alert.present();
+    } else {
+      const alert = await this.alertController.create({
+        header: 'Alerta',
+        message: 'Somente é possível excluir um cliente se possuir internet!',
+        buttons: ['OK']
+      });
+      await alert.present();
+    }
   }
 
 }

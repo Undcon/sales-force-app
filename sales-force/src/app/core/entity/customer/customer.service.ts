@@ -23,6 +23,10 @@ export class CustomerService {
     return this.http.get(`${environment.url}/customers?page=${page}&size=500`);
   }
 
+  public delete(id: any) {
+    return this.http.delete(`${environment.url}/customers/${id}`);
+  }
+
 }
 
 export interface Customer {
