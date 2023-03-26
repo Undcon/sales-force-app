@@ -10,6 +10,7 @@ import { StateService } from '../core/entity/state/state.service';
 import { CityService } from '../core/entity/city/city.service';
 import { TablePriceService } from '../core/entity/table-price/table-price.service';
 import { TableTimeService } from '../core/entity/table-time/table-time.service';
+import { OrderService } from '../core/entity/order/order.service';
 
 @Component({
   selector: 'app-sync',
@@ -30,7 +31,8 @@ export class SyncPage implements OnInit {
     private stateService: StateService,
     private cityService: CityService,
     private tablePriceService: TablePriceService,
-    private tableTimeService: TableTimeService
+    private tableTimeService: TableTimeService,
+    private orderService: OrderService
   ) { }
 
   ngOnInit() {
@@ -64,7 +66,43 @@ export class SyncPage implements OnInit {
     await this.loadTablePrice();
     await this.loadTableTime();
     await this.syncTablePriceProduct();
+    await this.loadProducts();
+    await this.loadKit();
     this.router.navigate(['/', 'features', 'tab1']);
+  }
+
+  private async loadKit() {
+    this.step = 'Sincronizando kit de produtos';
+    const kits = await this.orderService.getProductKit().toPromise() as any;
+    await this.dbService.clear('sale_force_table_price').toPromise();
+    for (const kit of kits.content) {
+      const itens = await this.orderService.getProductKitItens(kit.id).toPromise() as any;
+      kit.items = itens.content;
+      await this.dbService.add('sale_force_product_kit', kit).toPromise();
+    }
+  }
+
+  private async loadProducts() {
+    this.step = 'Sincronizando pedidos';
+    const orders = await this.orderService.getAll().toPromise() as any;
+    for (const order of orders.content) {
+      this.dbService.getByID('sale_force_product', order.id.toString()).subscribe(async item => {
+        try {
+          order.id = order.id.toString();
+          order.sync = true;
+          order.tablePrice = order.tableOfPrice;
+          order.tablePaymentTerm = order.tableOfPaymentTerm;
+          order.observation = order.observations;
+          if (item) {
+            await this.dbService.update('sale_force_product', order).toPromise();
+          } else {
+            await this.dbService.add('sale_force_product', order).toPromise();
+          }
+        } catch (err) {
+          console.log(err);
+        }
+      });
+    }
   }
 
   private async loadTableTime() {
@@ -101,12 +139,12 @@ export class SyncPage implements OnInit {
 
   private async loadTablePrice() {
     this.step = 'Sincronizando tabela de preço';
-    await this.dbService.clear('sale_force_table_price').toPromise();
-    const table = await this.tablePriceService.getAll(0).toPromise() as any;
-    await this.insertTable(table.content);
-    for (let i = 1; i < table.totalPages; i++) {
-      const tableFor = await this.tablePriceService.getAll(i).toPromise() as any;
-      this.insertTable(tableFor.content);
+    try {
+      await this.dbService.clear('sale_force_table_price').toPromise();
+      const table = await this.tablePriceService.getAll(0).toPromise() as any;
+      await this.insertTable(table);
+    } catch (err) {
+      alert('Ocorreu um erro em relação ao usuário representante, entre em contato com o administrador');
     }
   }
 

@@ -17,7 +17,7 @@ export class OrderService {
     delete payload.tablePrice;
     payload.tableOfPaymentTerm = payload.tablePaymentTerm;
     delete payload.tablePaymentTerm;
-    payload.observations = payload.observation
+    payload.observations = payload.observation;
     delete payload.items;
     return this.http.post(`${environment.url}/salesOrders`, payload);
   }
@@ -28,7 +28,7 @@ export class OrderService {
     delete payload.tablePrice;
     payload.tableOfPaymentTerm = payload.tablePaymentTerm;
     delete payload.tablePaymentTerm;
-    payload.observations = payload.observation
+    payload.observations = payload.observation;
     delete payload.items;
     return this.http.put(`${environment.url}/salesOrders/${payload.id}`, payload);
   }
@@ -47,6 +47,17 @@ export class OrderService {
     return this.http.post(`${environment.url}/salesOrders/${salesOrder}/itens`, payload);
   }
 
+  public getAll() {
+    return this.http.get(`${environment.url}/salesOrders?size=9999999`)
+  }
+
+  public getProductKit() {
+    return this.http.get(`${environment.url}/products/kit?size=9999999`)
+  }
+
+  public getProductKitItens(kitId: any) {
+    return this.http.get(`${environment.url}/products/kit/${kitId}/itensProducts?filter=kit.id=${kitId}&size=9999999`)
+  }
 }
 
 export interface Order {

@@ -12,7 +12,7 @@ export class TablePriceService {
   ) { }
 
   public getAll(page = 0) {
-    return this.http.get(`${environment.url}/tableprice?page=${page}&size=500`)
+    return this.http.get(`${environment.url}/tableprice/tablesFromLoggedUser`)
   }
 
   public getAllProduct(tablePrice: string) {
