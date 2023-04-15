@@ -4,6 +4,8 @@ import { NgxIndexedDBService } from 'ngx-indexed-db';
 import { SessionService } from './core/entity/session/session.service';
 import { LoadingController } from '@ionic/angular';
 
+import { Network } from '@awesome-cordova-plugins/network/ngx';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -12,14 +14,15 @@ class CanActivateLogin implements CanActivate {
     private dbService: NgxIndexedDBService,
     private router: Router,
     private sessionService: SessionService,
-    private loadingCtrl: LoadingController
+    private loadingCtrl: LoadingController,
+    private network: Network
   ) { }
 
   async canActivate() {
     try {
       const session = await this.dbService.getAll('sale_force_session').toPromise();
       if (session?.length) {
-        if (navigator.onLine) {
+        if (this.network.type !== this.network.Connection.NONE) {
           const loading = await this.loadingCtrl.create({
             message: 'Iniciando...',
           });
@@ -31,6 +34,7 @@ class CanActivateLogin implements CanActivate {
             loading.dismiss();
             return false;
           } catch (err) {
+            alert('Não foi possível fazer o login automatico!');
             loading.dismiss();
             return true;
           }
@@ -65,6 +69,7 @@ const routes: Routes = [
   imports: [
     RouterModule.forRoot(routes, { preloadingStrategy: PreloadAllModules })
   ],
-  exports: [RouterModule]
+  exports: [RouterModule],
+  providers: [Network]
 })
 export class AppRoutingModule { }

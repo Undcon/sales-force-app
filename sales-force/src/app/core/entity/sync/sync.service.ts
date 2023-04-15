@@ -3,6 +3,8 @@ import { NgxIndexedDBService } from 'ngx-indexed-db';
 import { CustomerService } from '../customer/customer.service';
 import { Order, OrderService } from '../order/order.service';
 
+import { Network } from '@awesome-cordova-plugins/network/ngx';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -16,7 +18,8 @@ export class SyncService {
   constructor(
     private dbService: NgxIndexedDBService,
     private custormService: CustomerService,
-    private orderService: OrderService
+    private orderService: OrderService,
+    private network: Network
   ) { }
 
   public errorSubs() {
@@ -32,7 +35,7 @@ export class SyncService {
   }
 
   public async sync() {
-    if (navigator.onLine) {
+    if (this.network.type !== this.network.Connection.NONE) {
       await this.syncCustomer();
       await this.syncOrder();
     }

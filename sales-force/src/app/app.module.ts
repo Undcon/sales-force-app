@@ -15,6 +15,8 @@ import { InterceptorService } from './core/interpector.service';
 
 import { provideEnvironmentNgxMask } from 'ngx-mask';
 
+import { Network } from '@awesome-cordova-plugins/network/ngx';
+
 
 export function migrationFactory() {
   return {
@@ -197,6 +199,7 @@ const dbConfig: DBConfig = {
       useClass: InterceptorService,
       multi: true
     },
+    Network,
     provideEnvironmentNgxMask()
   ],
   bootstrap: [AppComponent],
