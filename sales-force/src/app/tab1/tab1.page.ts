@@ -50,7 +50,14 @@ export class Tab1Page implements OnInit {
 
   ionViewWillEnter() {
     this.dbService.getAll('sale_force_customer').subscribe((customers: any[]) => {
-      this._customers = customers;
+      this._customers = customers.sort((a: any, b: any) => {
+        if (a.error) {
+          return -1;
+        } else if (a.sync == 0) {
+          return -1;
+        }
+        return 0;
+      });
       this.customers = [];
       for (let i = 0; i < 100; i++) {
         if (this._customers[i]) {

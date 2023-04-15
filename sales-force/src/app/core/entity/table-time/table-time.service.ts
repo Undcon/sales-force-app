@@ -14,4 +14,8 @@ export class TableTimeService {
   public getAll(page = 0) {
     return this.http.get(`${environment.url}/tablepaymentterm?page=${page}&size=500`);
   }
+
+  public getAllProduct(tablePrice: string) {
+    return this.http.get(`${environment.url}/tablepaymentterm/${tablePrice}/itens?filter=table.id=${tablePrice}&page=0&size=50000`)
+  }
 }

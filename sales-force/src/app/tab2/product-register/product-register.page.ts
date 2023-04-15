@@ -49,6 +49,8 @@ export class ProductRegisterPage implements OnInit {
   public deleted = [] as number[];
   public error = '';
 
+  public paymentTermSelectedList = [] as any[];
+
   constructor(
     private platform: Platform,
     private activatedRoute: ActivatedRoute,
@@ -64,8 +66,21 @@ export class ProductRegisterPage implements OnInit {
       customer: [],
       tablePrice: [],
       tablePaymentTerm: [],
-      observation: []
+      observation: [],
+      paymentTermSelected: []
     });
+    this.form.get('tablePaymentTerm')?.valueChanges.subscribe(async tablePaymentTerm => {
+      try {
+        if (tablePaymentTerm) {
+          this.paymentTermSelectedList = await this.dbService.getAllByIndex('sale_force_table_time_product', 'tableId', IDBKeyRange.only(tablePaymentTerm.id)).toPromise() as any[];
+          if (!this.paymentTermSelectedList) {
+            this.paymentTermSelectedList = [];
+          }
+        }
+      } catch (err) {
+
+      }
+    })
     this.itemForm = this.formBuilder.group({
       id: [],
       name: [null],
@@ -220,6 +235,44 @@ export class ProductRegisterPage implements OnInit {
         i.price = parseFloat(i.price).toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
       }
     });
+  }
+
+  public totalProduct(items: any[]) {
+    let total = 0;
+    items.forEach(i => total += parseFloat(i.product?.salePrice));
+    return this.parseCurrency(total);
+  }
+
+  public totalKit(items: any[], quantity: number) {
+    let total = 0;
+    items.forEach(i => total += parseFloat(i.product?.salePrice));
+    return total * quantity;
+  }
+
+  public totalKits() {
+    let total = 0;
+    this.selectedItems.forEach(item => {
+      total += this.totalKit(item.name.items, item?.quantity);
+    });
+    return total;
+  }
+
+  public totalDiscount() {
+    if (this.form.get('paymentTermSelected')?.value) {
+      const discount = this.paymentTermSelectedList.find(p => p.days === this.form.get('paymentTermSelected')?.value)?.discount;
+      if (discount) {
+        return this.totalKits() * (discount / 100);
+      }
+    }
+    return 0;
+  }
+
+  public total() {
+    return this.totalKits() - this.totalDiscount();
+  }
+
+  public parseCurrency(value: number) {
+    return value.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
   }
 
   public onProductsLoadMore(event: any) {

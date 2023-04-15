@@ -32,8 +32,10 @@ export class SyncService {
   }
 
   public async sync() {
-    await this.syncCustomer();
-    await this.syncOrder();
+    if (navigator.onLine) {
+      await this.syncCustomer();
+      await this.syncOrder();
+    }
   }
 
   private async syncOrder() {

@@ -1,11 +1,11 @@
-<ion-header [collapse]="isIos ? 'condense' : ''">
+<ion-header collapse="condense" mode="ios">
   <ion-toolbar mode="ios">
     <ion-title>Notificações</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-list *ngIf="logs?.length">
+  <ion-list mode="ios" *ngIf="logs?.length">
     <ion-item-sliding *ngFor="let log of logs">
       <ion-item (click)="deleteNotification(log.id)" *ngIf="log.type === 'customer'">
         <ion-icon color="medium" name="person" slot="start"></ion-icon>

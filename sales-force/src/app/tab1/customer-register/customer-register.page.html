@@ -1,4 +1,4 @@
-<ion-header [collapse]="isIos ? 'condense' : ''">
+<ion-header collapse="condense" mode="ios">
   <ion-toolbar mode="ios">
     <ion-back-button slot="start" defaultHref="/features/tab1" text="Voltar"></ion-back-button>
     <ion-title>{{isNew ? 'Novo' : 'Atualizar'}} cliente</ion-title>
@@ -8,6 +8,7 @@
 <ion-content>
   <div class="container-fluid">
     <div style="color: white; background: rgb(199, 38, 38); padding: 10px; border-radius: 10px;" *ngIf="error">{{error}}
+      <ion-button size="small" (click)="save()" color="light">Tentar novamente</ion-button>
     </div>
     <form class="mt-3" [formGroup]="form">
       <h4 class="mb-3">Dados gerais</h4>
@@ -111,7 +112,7 @@
     <ion-content style="--background: #ffffff">
       <ion-searchbar [(ngModel)]="cityFilter" (ngModelChange)="onCityFilter()" mode="ios"
         placeholder="Pesquisar"></ion-searchbar>
-      <ion-list *ngIf="city?.length">
+      <ion-list mode="ios" *ngIf="city?.length">
         <ion-item (click)="onSelect(item, filter)" *ngFor="let item of city">
           <ion-label>{{item.name}}</ion-label>
           <ion-button slot="end" fill="clear">Selecionar</ion-button>

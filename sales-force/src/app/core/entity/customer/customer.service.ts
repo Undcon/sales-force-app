@@ -20,7 +20,7 @@ export class CustomerService {
   }
 
   public getAll(page = 0) {
-    return this.http.get(`${environment.url}/customers?page=${page}&size=500`);
+    return this.http.get(`${environment.url}/customers/customersFromLoggedUser?page=${page}&size=500`);
   }
 
   public delete(id: any) {

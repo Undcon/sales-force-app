@@ -1,4 +1,4 @@
-<ion-header [collapse]="isIos ? 'condense' : ''">
+<ion-header collapse="condense" mode="ios">
   <ion-toolbar mode="ios">
     <ion-back-button slot="start" defaultHref="/features/tab2" text="Voltar"></ion-back-button>
     <ion-title>{{isNew ? 'Novo' : 'Editar'}} pedido</ion-title>
@@ -7,11 +7,14 @@
 
 <ion-content>
   <div class="container mt-3" [formGroup]="form">
-    <div class="mb-3" style="color: white; background: rgb(199, 38, 38); padding: 10px; border-radius: 10px;" *ngIf="error">{{error}}
+    <div class="mb-3" style="color: white; background: rgb(199, 38, 38); padding: 10px; border-radius: 10px;"
+      *ngIf="error">{{error}}
+      <ion-button size="small" (click)="save()" color="light">Tentar novamente</ion-button>
     </div>
     <ion-segment mode="ios" [value]="segment" (ionChange)="onSegmentChage($event)">
       <ion-segment-button value="product">Pedido</ion-segment-button>
       <ion-segment-button [disabled]="!form.get('tablePrice')?.value" value="items">Itens do pedido</ion-segment-button>
+      <ion-segment-button [disabled]="!selectedItems.length" value="total">Totais</ion-segment-button>
     </ion-segment>
     <span (click)="customerModal.present()" *ngIf="segment === 'product'" class="p-float-label mt-3">
       <input readonly [value]="form.get('customer')?.value?.name" id="float-input" class="w-100" type="text" pInputText>
@@ -27,6 +30,11 @@
         pInputText>
       <label for="float-input">Selecione a tabela de prazo</label>
     </span>
+    <span *ngIf="paymentTermSelectedList?.length && segment === 'product' " class="p-float-label mt-3">
+      <p-dropdown [autoDisplayFirst]="false" formControlName="paymentTermSelected" [style]="{'minWidth':'100%'}"
+        [options]="paymentTermSelectedList" optionValue="days" [optionLabel]="'days'"></p-dropdown>
+      <label for="float-input">Selecione o prazo em dias</label>
+    </span>
     <span *ngIf="segment === 'product'" class="p-float-label mt-3">
       <textarea formControlName="observation" id="float-input" class="w-100" type="text" pInputText></textarea>
       <label for="float-input">Digite as observações</label>
@@ -34,8 +42,8 @@
   </div>
   <div class="container mt-3" [formGroup]="itemForm">
     <span *ngIf="segment === 'items'" class="p-float-label mt-3">
-      <input readonly [value]="itemForm.get('name')?.value?.name" (click)="showItens()" id="float-input"
-        class="w-100" type="text" pInputText>
+      <input readonly [value]="itemForm.get('name')?.value?.name" (click)="showItens()" id="float-input" class="w-100"
+        type="text" pInputText>
       <label for="float-input">Selecione o kit</label>
     </span>
     <span *ngIf="segment === 'items'" class="p-float-label mt-3">
@@ -51,7 +59,7 @@
       <h3>Nenhum item vinculado</h3>
     </div>
     <div class="text-center text-muted mt-3 pl-0 ml-0" *ngIf="segment === 'items' && selectedItems?.length">
-      <ion-list>
+      <ion-list mode="ios">
         <ion-item-sliding *ngFor="let item of selectedItems">
           <ion-item class="no-padding">
             <ion-label>
@@ -66,7 +74,55 @@
         </ion-item-sliding>
       </ion-list>
     </div>
-    <ion-button (click)="save()" class="w-100 {{segment === 'items' ? 'mt-5' : ''}}">Salvar</ion-button>
+    <div class="text-left text-muted mt-3 pl-0 ml-0" *ngIf="segment === 'total' && selectedItems?.length">
+      <div *ngFor="let item of selectedItems" class="mt-4">
+        <h5>{{item?.name?.name}} ({{item?.quantity}} quantidades)</h5>
+        <table class="table" *ngIf="item?.name.items?.length">
+          <tbody>
+            <tr *ngFor="let product of item.name.items">
+              <td style="font-size: 12px;">{{product?.product?.name}}</td>
+              <td style="font-size: 12px;" class="text-right">{{parseCurrency(product?.product?.salePrice)}}</td>
+            </tr>
+            <tr>
+              <td style="font-size: 12px;">Total de produtos</td>
+              <td style="font-size: 12px;" class="text-right">{{totalProduct(item.name.items)}}</td>
+            </tr>
+            <tr>
+              <td style="font-size: 12px;">Total do kit</td>
+              <td style="font-size: 12px;" class="text-right">{{this.parseCurrency(totalKit(item.name.items,
+                item?.quantity))}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h5>Total dos kits</h5>
+      <table class="table">
+        <tbody>
+          <tr>
+            <td style="font-size: 12px;">Total</td>
+            <td style="font-size: 12px;" class="text-right">{{this.parseCurrency(totalKits())}}</td>
+          </tr>
+        </tbody>
+      </table>
+      <h5>Descontos</h5>
+      <table class="table">
+        <tbody>
+          <tr>
+            <td style="font-size: 12px;">Total</td>
+            <td style="font-size: 12px;" class="text-right">{{this.parseCurrency(totalDiscount())}}</td>
+          </tr>
+        </tbody>
+      </table>
+      <table class="table">
+        <tbody>
+          <tr>
+            <td><h2>Total</h2></td>
+            <td class="text-right"><h2>{{this.parseCurrency(total())}}</h2></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <ion-button (click)="save()" class="w-100 {{segment === 'items' ? 'mt-5' : ''}} mb-4">Salvar</ion-button>
   </div>
 </ion-content>
 
@@ -85,7 +141,7 @@
     <ion-content style="--background: #ffffff">
       <ion-searchbar [(ngModel)]="customerFilter" (ngModelChange)="onCustomerFilter()" mode="ios"
         placeholder="Pesquisar"></ion-searchbar>
-      <ion-list *ngIf="customers?.length">
+      <ion-list mode="ios" *ngIf="customers?.length">
         <ion-item (click)="onSelectCustomer(item, customerModal)" *ngFor="let item of customers">
           <ion-label>
             <h2>{{item.name}}</h2>
@@ -123,7 +179,7 @@
     <ion-content style="--background: #ffffff">
       <ion-searchbar [(ngModel)]="tablePriceFilter" (ngModelChange)="onTablePriceFilter()" mode="ios"
         placeholder="Pesquisar"></ion-searchbar>
-      <ion-list *ngIf="tablePrices?.length">
+      <ion-list mode="ios" *ngIf="tablePrices?.length">
         <ion-item (click)="onSelectTablePrice(item, tablePriceModal)" *ngFor="let item of tablePrices">
           <ion-label>
             <h2>{{item.name}}</h2>
@@ -159,7 +215,7 @@
     <ion-content style="--background: #ffffff">
       <ion-searchbar [(ngModel)]="tableTimesFilter" (ngModelChange)="onTableTimeFilter()" mode="ios"
         placeholder="Pesquisar"></ion-searchbar>
-      <ion-list *ngIf="tableTimes?.length">
+      <ion-list mode="ios" *ngIf="tableTimes?.length">
         <ion-item (click)="onSelectTableTime(item, tableTimeModal)" *ngFor="let item of tableTimes">
           <ion-label>
             <h2>{{item.name}}</h2>
@@ -194,7 +250,7 @@
     <ion-content style="--background: #ffffff">
       <ion-searchbar [(ngModel)]="productFilter" (ngModelChange)="onProductFilter()" mode="ios"
         placeholder="Pesquisar"></ion-searchbar>
-      <ion-list *ngIf="items?.length">
+      <ion-list mode="ios" *ngIf="items?.length">
         <ion-item (click)="onSelectItem(item, modalItem)" *ngFor="let item of items">
           <ion-label>
             <h2>{{item?.name}}</h2>

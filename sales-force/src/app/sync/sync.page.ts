@@ -65,6 +65,7 @@ export class SyncPage implements OnInit {
     await this.loadCity();
     await this.loadTablePrice();
     await this.loadTableTime();
+    await this.syncTableTimeProduct();
     await this.syncTablePriceProduct();
     await this.loadKit();
     await this.loadProducts();
@@ -93,6 +94,8 @@ export class SyncPage implements OnInit {
           order.tablePrice = order.tableOfPrice;
           order.tablePaymentTerm = order.tableOfPaymentTerm;
           order.observation = order.observations;
+          const kits = await this.dbService.getAll<any>('sale_force_table_price_product').toPromise() as any[];
+          const products = kits.filter(kit => kit.id === order.tableOfPaymentTerm.id);
           try {
             const itens = await this.orderService.getAllItems(order.id).toPromise() as any;
             order.items = itens.content.map((c: any) => {
@@ -101,7 +104,8 @@ export class SyncPage implements OnInit {
                 quantity: c.quantity || 1,
                 name: {
                   id: c.productKit.id,
-                  name: c.productKit.name
+                  name: c.productKit.name,
+                  items: products
                 }
               }
             })
@@ -133,6 +137,19 @@ export class SyncPage implements OnInit {
     if (table) {
       for (const t of table) {
         await this.dbService.add('sale_force_table_time', t).toPromise();
+      }
+    }
+  }
+
+  private async syncTableTimeProduct() {
+    this.step = 'Sincronizando produtos da tabela de prazo';
+    await this.dbService.clear('sale_force_table_time_product').toPromise();
+    const tables = await this.dbService.getAll('sale_force_table_time').toPromise() as any[];
+    for (const table of tables) {
+      const products = await this.tableTimeService.getAllProduct(table.id).toPromise() as any;
+      for (const product of products.content) {
+        product.tableId = table.id;
+        await this.dbService.add('sale_force_table_time_product', product).toPromise();
       }
     }
   }

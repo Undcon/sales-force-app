@@ -60,7 +60,7 @@ export class OrderService {
   }
 
   public getAllItems(orderId: any) {
-    return this.http.get(`${environment.url}/salesOrders/${orderId}/itens?size=9999999`)
+    return this.http.get(`${environment.url}/salesOrders/${orderId}/itens?filter=salesOrder.id=${orderId}&size=9999999`)
   }
 
   public getProductKit() {

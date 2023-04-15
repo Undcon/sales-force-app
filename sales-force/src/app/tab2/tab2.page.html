@@ -1,4 +1,4 @@
-<ion-header [collapse]="isIos ? 'condense' : ''">
+<ion-header collapse="condense" mode="ios">
   <ion-toolbar mode="ios">
     <ion-title>Pedidos</ion-title>
     <ion-buttons slot="end">
@@ -10,10 +10,10 @@
 <ion-content>
   <ion-searchbar [(ngModel)]="customerFilter" (ngModelChange)="onCustomerFilter()" mode="ios"
     placeholder="Pesquisar por cliente"></ion-searchbar>
-  <ion-list>
+  <ion-list mode="ios">
     <ion-item-sliding *ngFor="let item of product">
-      <ion-item>
-        <ion-label [routerLink]="['/', 'features', 'tab2', 'product-register', item.id]">
+      <ion-item [routerLink]="['/', 'features', 'tab2', 'product-register', item.id]">
+        <ion-label>
           <h5 *ngIf="item?.customer?.name">Cliente: {{item?.customer?.name}}</h5>
           <h5 *ngIf="!item?.customer?.name">Esboço: {{item?.createdAt}}</h5>
           <h5 *ngIf="item?.type === 'order'">Erro ao integrar pedido</h5>

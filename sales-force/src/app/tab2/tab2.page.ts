@@ -50,6 +50,14 @@ export class Tab2Page implements OnInit {
   ionViewWillEnter() {
     this.dbService.getAll('sale_force_product').subscribe((products: any[]) => {
       this._product = products.sort((a: any, b: any) => { return (new Date(b.createdAt as any) as any - (new Date(a.createdAt as any) as any)) as any });
+      this._product = this._product.sort((a: any, b: any) => {
+        if (a.error) {
+          return -1;
+        } else if (a.sync == 0) {
+          return -1;
+        }
+        return 0;
+      });
       this.product = [];
       for (let i = 0; i < 100; i++) {
         if (this._product[i]) {
