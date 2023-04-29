@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { NavController, Platform } from '@ionic/angular';
+import { NavController, Platform, ToastController } from '@ionic/angular';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
 import { Customer } from 'src/app/core/entity/customer/customer.service';
 
@@ -15,6 +15,7 @@ import { v4 as uuidv4 } from 'uuid';
 export class ProductRegisterPage implements OnInit {
 
   @ViewChild('modalItem') modalItem: any;
+  @ViewChild('kitDetailModal') kitDetailModal: any;
 
   public isIos = false;
 
@@ -51,19 +52,22 @@ export class ProductRegisterPage implements OnInit {
 
   public paymentTermSelectedList = [] as any[];
 
+  public itensKitIndex = 0;
+
   constructor(
     private platform: Platform,
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
     private dbService: NgxIndexedDBService,
-    private navController: NavController
+    private navController: NavController,
+    private toastController: ToastController
   ) { }
 
   ngOnInit() {
     this.isIos = this.platform.is('ios');
     this.form = this.formBuilder.group({
       id: [],
-      customer: [],
+      customer: [null, Validators.required],
       tablePrice: [],
       tablePaymentTerm: [],
       observation: [],
@@ -73,6 +77,12 @@ export class ProductRegisterPage implements OnInit {
       try {
         if (tablePaymentTerm) {
           this.paymentTermSelectedList = await this.dbService.getAllByIndex('sale_force_table_time_product', 'tableId', IDBKeyRange.only(tablePaymentTerm.id)).toPromise() as any[];
+          if (this.form.get('paymentTermSelected')?.value) {
+            const item = this.paymentTermSelectedList.find(p => p.days === this.form.get('paymentTermSelected')?.value?.days);
+            if (item) {
+              this.form.get('paymentTermSelected')?.patchValue(item);
+            }
+          }
           if (!this.paymentTermSelectedList) {
             this.paymentTermSelectedList = [];
           }
@@ -114,21 +124,33 @@ export class ProductRegisterPage implements OnInit {
   }
 
   public async save() {
-    const form = this.form.getRawValue();
-    form.items = this.selectedItems;
-    if (this.deleted && this.deleted.length) {
-      form.deleteds = this.deleted;
-    }
-    form.sync = 0;
-    form.error = null;
-    if (this.activatedRoute.snapshot.params['id'] === 'new') {
-      form.createdAt = new Date().toJSON();
-      form.id = uuidv4();
-      await this.dbService.add('sale_force_product', form).toPromise();
+    if (this.form.valid) {
+      const form = this.form.getRawValue();
+      form.items = this.selectedItems;
+      if (this.deleted && this.deleted.length) {
+        form.deleteds = this.deleted;
+      }
+      form.sync = 0;
+      form.error = null;
+      if (this.activatedRoute.snapshot.params['id'] === 'new') {
+        form.createdAt = new Date().toJSON();
+        form.id = uuidv4();
+        await this.dbService.add('sale_force_product', form).toPromise();
+      } else {
+        await this.dbService.update('sale_force_product', form).toPromise();
+      }
+      this.navController.back();
     } else {
-      await this.dbService.update('sale_force_product', form).toPromise();
+      const toast = await this.toastController.create({
+        message: 'Selecione um cliente para salvar o pedido!',
+        duration: 2500,
+        color: 'warning',
+        position: 'top'
+      });
+  
+      await toast.present();
+      this.form.markAllAsTouched();
     }
-    this.navController.back();
   }
 
   public onCustomerFilter() {
@@ -259,12 +281,16 @@ export class ProductRegisterPage implements OnInit {
 
   public totalDiscount() {
     if (this.form.get('paymentTermSelected')?.value) {
-      const discount = this.paymentTermSelectedList.find(p => p.days === this.form.get('paymentTermSelected')?.value)?.discount;
-      if (discount) {
-        return this.totalKits() * (discount / 100);
+      if (this.form.get('paymentTermSelected')?.value?.discount) {
+        return this.totalKits() * (this.form.get('paymentTermSelected')?.value?.discount / 100);
       }
     }
     return 0;
+  }
+
+  public showItensKit(index: number) {
+    this.itensKitIndex = index;
+    this.kitDetailModal.present()
   }
 
   public total() {

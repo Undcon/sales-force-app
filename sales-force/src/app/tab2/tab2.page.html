@@ -35,4 +35,12 @@
       </ion-item-options>
     </ion-item-sliding>
   </ion-list>
+  <div class="text-center text-muted mt-5" *ngIf="!product?.length">
+    <ion-icon name="file-tray-outline" style="font-size: 100px;"></ion-icon>
+    <h2>Nenhum pedido cadastrado</h2>
+  </div>
+  <br>
+  <ion-infinite-scroll (ionInfinite)="loadMore($event)">
+    <ion-infinite-scroll-content></ion-infinite-scroll-content>
+  </ion-infinite-scroll>
 </ion-content>

@@ -41,34 +41,42 @@ export class SyncPage implements OnInit {
 
   ionViewWillEnter() {
     if (navigator.onLine) {
-      this.load();
+      try {
+        this.load();
+      } catch (err: any) {
+        alert(err.message);
+      }
     } else {
       this.router.navigate(['/', 'features', 'tab1']);
     }
   }
 
   private async load() {
-    const lastSyncs = await this.dbService.getAll('sale_force_last_sync').toPromise() as any[];
-    let lastSync = new Date();
-    if (lastSyncs?.length) {
-      lastSync = new Date(lastSyncs[0].date);
-      lastSyncs[0].date = new Date();
-      await this.dbService.update('sale_force_last_sync', lastSyncs[0]);
-    } else {
-      await this.dbService.add('sale_force_last_sync', {
-        id: uuidv4(),
-        date: new Date().toJSON()
-      });
+    try {
+      const lastSyncs = await this.dbService.getAll('sale_force_last_sync').toPromise() as any[];
+      let lastSync = new Date();
+      if (lastSyncs?.length) {
+        lastSync = new Date(lastSyncs[0].date);
+        lastSyncs[0].date = new Date();
+        await this.dbService.update('sale_force_last_sync', lastSyncs[0]);
+      } else {
+        await this.dbService.add('sale_force_last_sync', {
+          id: uuidv4(),
+          date: new Date().toJSON()
+        });
+      }
+      await this.loadCustomer();
+      await this.loadState();
+      await this.loadCity();
+      await this.loadTablePrice();
+      await this.loadTableTime();
+      await this.syncTableTimeProduct();
+      await this.syncTablePriceProduct();
+      await this.loadKit();
+      await this.loadProducts();
+    } catch (err: any) {
+      alert(err.message);
     }
-    await this.loadCustomer();
-    await this.loadState();
-    await this.loadCity();
-    await this.loadTablePrice();
-    await this.loadTableTime();
-    await this.syncTableTimeProduct();
-    await this.syncTablePriceProduct();
-    await this.loadKit();
-    await this.loadProducts();
     this.router.navigate(['/', 'features', 'tab1']);
   }
 
@@ -115,7 +123,8 @@ export class SyncPage implements OnInit {
           } else {
             await this.dbService.add('sale_force_product', order).toPromise();
           }
-        } catch (err) {
+        } catch (err: any) {
+          alert(err.message);
           console.log(err);
         }
       });
@@ -235,7 +244,8 @@ export class SyncPage implements OnInit {
             } else {
               await this.dbService.add('sale_force_customer', customer).toPromise();
             }
-          } catch (err) {
+          } catch (err: any) {
+            alert(err.message);
             console.log(err);
           }
         });

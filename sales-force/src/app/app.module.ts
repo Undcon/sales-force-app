@@ -159,7 +159,8 @@ const dbConfig: DBConfig = {
       { name: 'observation', keypath: 'observation', options: { unique: false } },
       { name: 'items', keypath: 'items', options: { unique: false } },
       { name: 'createdAt', keypath: 'createdAt', options: { unique: false } },
-      { name: 'sync', keypath: 'sync', options: { unique: false } }
+      { name: 'sync', keypath: 'sync', options: { unique: false } },
+      { name: 'paymentTermSelected', keypath: 'paymentTermSelected', options: { unique: false } }
     ]
   }, {
     store: 'sale_force_product_kit',

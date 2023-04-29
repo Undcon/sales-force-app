@@ -33,10 +33,15 @@ class CanActivateLogin implements CanActivate {
             this.router.navigate(['/', 'sync']);
             loading.dismiss();
             return false;
-          } catch (err) {
-            alert('Não foi possível fazer o login automatico!');
+          } catch (err: any) {
             loading.dismiss();
-            return true;
+            if (err.status === 0) {
+              this.router.navigate(['/', 'features', 'tab2']);
+              return false;
+            } else {
+              alert('Não foi possível fazer o login automatico!');
+              return true;
+            }
           }
         } else {
           this.router.navigate(['/', 'features', 'tab2']);

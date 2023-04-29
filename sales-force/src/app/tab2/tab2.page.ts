@@ -18,6 +18,8 @@ export class Tab2Page implements OnInit {
   public product = [] as any[];
   public _product = [] as any[];
 
+  public page = 1;
+
   constructor(
     private platform: Platform,
     private dbService: NgxIndexedDBService,
@@ -64,7 +66,20 @@ export class Tab2Page implements OnInit {
           this.product.push(this._product[i]);
         }
       }
+      this.page = 1;
     });
+  }
+
+  public loadMore(event: any) {
+    this.page ++;
+    for (let i = ((100 * this.page) - 100); i < (100 * this.page); i++) {
+      if (this._product[i]) {
+        if (this._product[i]) {
+          this.product.push(this._product[i]);
+        }
+      }
+    }
+    event.target.complete();
   }
 
   public onCustomerFilter() {

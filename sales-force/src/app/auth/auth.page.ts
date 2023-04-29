@@ -31,13 +31,17 @@ export class AuthPage implements OnInit {
 
   public async login() {
     if (this.form.valid) {
-      const response = await this.sessionService.login(this.form.getRawValue()).toPromise() as any;
-      const form = this.form.getRawValue();
-      form.token = response.token;
-      localStorage.setItem('token', response.token);
-      form.id = uuidv4();
-      await this.dbService.add('sale_force_session', form).toPromise();
-      this.router.navigate(['/sync']);
+      try {
+        const response = await this.sessionService.login(this.form.getRawValue()).toPromise() as any;
+        const form = this.form.getRawValue();
+        form.token = response.token;
+        localStorage.setItem('token', response.token);
+        form.id = uuidv4();
+        await this.dbService.add('sale_force_session', form).toPromise();
+        this.router.navigate(['/sync']);
+      } catch (err: any) {
+        console.log('Ocorreu um erro ao autenticar: ' + err.message);
+      }
     } else {
       this.form.markAllAsTouched();
     }

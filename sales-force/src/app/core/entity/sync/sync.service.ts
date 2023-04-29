@@ -48,6 +48,7 @@ export class SyncService {
         if (isNaN(order.id as any)) {
           order.oldid = order.id;
           delete order.id;
+          order.tableOfPaymentTermItem = {};
           try {
             const o = await this.orderService.create(order).toPromise() as any;
             order.id = o.id.toString();
@@ -61,19 +62,18 @@ export class SyncService {
             await this.dbService.add('sale_force_product', order).toPromise();
             await this.dbService.delete('sale_force_product', order.oldid).toPromise();
           } catch (err: any) {
-            this.error.emit(1);
             order.sync = 1;
             order.id = order.oldid;
             order.error = err.error?.message ? err.error?.message : JSON.stringify(err.error);
-            if (err.status === 0) {
-              order.error = 'O servidores não estão disponíveis, não se preocupe, tentaremos novamente mais tarde.'
+            if (err.status !== 0) {
+              this.error.emit(1);
+              await this.dbService.update('sale_force_product', order).toPromise();
+              await this.dbService.add('sale_force_log', {
+                log: `Erro ao inserir pedido`,
+                id: order.oldid,
+                type: 'order'
+              }).toPromise();
             }
-            await this.dbService.update('sale_force_product', order).toPromise();
-            await this.dbService.add('sale_force_log', {
-              log: `Erro ao inserir pedido`,
-              id: order.oldid,
-              type: 'order'
-            }).toPromise();
           }
         } else {
           order.sync = 1;
@@ -98,19 +98,18 @@ export class SyncService {
             }
             await this.dbService.update('sale_force_product', order).toPromise();
           } catch (err: any) {
-            this.error.emit(1);
             order.id = order.id.toString();
             order.sync = 1;
             order.error = err.error?.message ? err.error?.message : JSON.stringify(err.error);
-            if (err.status === 0) {
-              order.error = 'O servidores não estão disponíveis, não se preocupe, tentaremos novamente mais tarde.'
+            if (err.status !== 0) {
+              this.error.emit(1);
+              await this.dbService.update('sale_force_product', order).toPromise();
+              await this.dbService.add('sale_force_log', {
+                log: `Erro ao atualizar o pedido`,
+                id: order.id,
+                type: 'order'
+              }).toPromise();
             }
-            await this.dbService.update('sale_force_product', order).toPromise();
-            await this.dbService.add('sale_force_log', {
-              log: `Erro ao atualizar o pedido`,
-              id: order.id,
-              type: 'order'
-            }).toPromise();
           }
         }
       }
@@ -139,19 +138,18 @@ export class SyncService {
               id: customer.id
             });
           } catch (err: any) {
-            this.error.emit(1);
             customer.sync = 1;
             customer.id = customer.oldid;
             customer.error = err.error?.message ? err.error?.message : JSON.stringify(err.error);
-            if (err.status === 0) {
-              customer.error = 'O servidores não estão disponíveis, não se preocupe, tentaremos novamente mais tarde.'
+            if (err.status !== 0) {
+              this.error.emit(1);
+              await this.dbService.update('sale_force_customer', customer).toPromise();
+              await this.dbService.add('sale_force_log', {
+                log: `Erro ao inserir o cliente ${customer.name}`,
+                id: customer.oldid,
+                type: 'customer'
+              }).toPromise();
             }
-            await this.dbService.update('sale_force_customer', customer).toPromise();
-            await this.dbService.add('sale_force_log', {
-              log: `Erro ao inserir o cliente ${customer.name}`,
-              id: customer.oldid,
-              type: 'customer'
-            }).toPromise();
           }
         } else {
           customer.sync = 1;
@@ -160,18 +158,17 @@ export class SyncService {
             customer.id = customer.id.toString();
             await this.dbService.update('sale_force_customer', customer).toPromise();
           } catch (err: any) {
-            this.error.emit(1);
             customer.id = customer.id.toString();
             customer.error = err.error?.message ? err.error?.message : JSON.stringify(err.error);
-            if (err.status === 0) {
-              customer.error = 'O servidores não estão disponíveis, não se preocupe, tentaremos novamente mais tarde.'
+            if (err.status !== 0) {
+              this.error.emit(1);
+              await this.dbService.update('sale_force_customer', customer).toPromise();
+              await this.dbService.add('sale_force_log', {
+                log: `Erro ao atualizar o cliente ${customer.name}`,
+                id: customer.oldid,
+                type: 'customer'
+              }).toPromise();
             }
-            await this.dbService.update('sale_force_customer', customer).toPromise();
-            await this.dbService.add('sale_force_log', {
-              log: `Erro ao atualizar o cliente ${customer.name}`,
-              id: customer.oldid,
-              type: 'customer'
-            }).toPromise();
           }
         }
       }
