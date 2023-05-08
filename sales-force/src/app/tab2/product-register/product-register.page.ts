@@ -40,6 +40,7 @@ export class ProductRegisterPage implements OnInit {
   public form: FormGroup;
 
   public selectedItems = [] as any[];
+  public tablePriceProduct = [] as any[];
 
   public itemForm: FormGroup;
 
@@ -109,6 +110,27 @@ export class ProductRegisterPage implements OnInit {
       if (!this.selectedItems) {
         this.selectedItems = [];
       }
+      this.dbService.getAll('sale_force_table_price_product').subscribe(tablePriceProduct => {
+        this.tablePriceProduct = tablePriceProduct;
+        this.dbService.getAll('sale_force_product_kit').subscribe(productsKit => {
+          this.selectedItems.forEach(async selected => {
+            if (!selected?.name?.items?.length) {
+              const itens = productsKit.find((p: any) => p.id === selected?.name.id) as any;
+              selected.name.items = itens?.items || [];
+              selected.name.items.forEach((i: any) => {
+                const productTablePrice = this.tablePriceProduct.find(ptp => ptp.product?.id === i.product?.id);
+                if (productTablePrice) {
+                  i.price = productTablePrice.price;
+                } else {
+                  alert(`O producto ${i.product.name} não possui preço configurado na tabela de preço selecionada!`);
+                  i.price = 0;
+                }
+              });
+            }
+          })
+        });
+      });
+
       this.form.patchValue(this.activatedRoute.snapshot.data['entity']);
       this.error = this.activatedRoute.snapshot.data['entity']?.error;
       if (this.activatedRoute.snapshot.data['entity']?.deleteds) {
@@ -147,7 +169,7 @@ export class ProductRegisterPage implements OnInit {
         color: 'warning',
         position: 'top'
       });
-  
+
       await toast.present();
       this.form.markAllAsTouched();
     }
@@ -205,6 +227,18 @@ export class ProductRegisterPage implements OnInit {
         form.id = uuidv4();
       } else {
         this.removeItem(form.id);
+        form.id = uuidv4();
+      }
+      if (form?.name?.items?.length) {
+        form?.name?.items.forEach((i: any) => {
+          const productTablePrice = this.tablePriceProduct.find(ptp => ptp.product?.id === i.product?.id);
+          if (productTablePrice) {
+            i.price = productTablePrice.price;
+          } else {
+            alert(`O producto ${i.product.name} não possui preço configurado na tabela de preço selecionada!`);
+            i.price = 0;
+          }
+        })
       }
       this.selectedItems.push(form);
       this.itemForm.reset();
@@ -261,13 +295,13 @@ export class ProductRegisterPage implements OnInit {
 
   public totalProduct(items: any[]) {
     let total = 0;
-    items.forEach(i => total += parseFloat(i.product?.salePrice));
+    items.forEach(i => total += parseFloat(i.price));
     return this.parseCurrency(total);
   }
 
   public totalKit(items: any[], quantity: number) {
     let total = 0;
-    items.forEach(i => total += parseFloat(i.product?.salePrice));
+    items.forEach(i => total += (parseFloat(i.price) * i.quantity));
     return total * quantity;
   }
 

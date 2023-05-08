@@ -20,4 +20,8 @@ export class TabsPage implements OnInit {
     });
   }
 
+  public resetCount() {
+    this.notification = 0;
+  }
+
 }

@@ -5,6 +5,7 @@ import { NgxIndexedDBService } from 'ngx-indexed-db';
 import { SessionService } from '../core/entity/session/session.service';
 
 import { v4 as uuidv4 } from 'uuid';
+import { ToastController } from '@ionic/angular';
 
 @Component({
   selector: 'app-auth',
@@ -19,7 +20,8 @@ export class AuthPage implements OnInit {
     private formBuilder: FormBuilder,
     private router: Router,
     private dbService: NgxIndexedDBService,
-    private sessionService: SessionService
+    private sessionService: SessionService,
+    private toastController: ToastController
   ) { }
 
   ngOnInit() {
@@ -41,6 +43,14 @@ export class AuthPage implements OnInit {
         this.router.navigate(['/sync']);
       } catch (err: any) {
         console.log('Ocorreu um erro ao autenticar: ' + err.message);
+        const toast = await this.toastController.create({
+          message: 'Ocorreu um erro ao autenticar: ' + err.error.message,
+          duration: 3500,
+          position: 'top',
+          color: 'danger'
+        });
+    
+        await toast.present();
       }
     } else {
       this.form.markAllAsTouched();
