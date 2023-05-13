@@ -103,8 +103,22 @@ export class ProductRegisterPage implements OnInit {
     this.deleted = [];
     this.isNew = this.activatedRoute.snapshot.params['id'] === 'new';
     this._customers = this.activatedRoute.snapshot.data['customers'];
+    this.customers = [];
     this._tablePrices = this.activatedRoute.snapshot.data['tablePrices'];
+    this.tablePrices = [];
     this._tableTimes = this.activatedRoute.snapshot.data['tableTimes'];
+    this.tableTimes = [];
+    for (let i = 0; i < 50; i++) {
+      if (this._customers.length > i) {
+        this.customers.push(this._customers[i]);
+      }
+      if (this._tablePrices.length > i) {
+        this.tablePrices.push(this._tablePrices[i]);
+      }
+      if (this._tableTimes.length > i) {
+        this.tableTimes.push(this._tableTimes[i]);
+      }
+    }
     if (this.activatedRoute.snapshot.data['entity']) {
       this.selectedItems = this.activatedRoute.snapshot.data['entity'].items;
       if (!this.selectedItems) {
@@ -314,9 +328,11 @@ export class ProductRegisterPage implements OnInit {
   }
 
   public totalDiscount() {
-    if (this.form.get('paymentTermSelected')?.value) {
-      if (this.form.get('paymentTermSelected')?.value?.discount) {
-        return this.totalKits() * (this.form.get('paymentTermSelected')?.value?.discount / 100);
+    if (this.paymentTermSelectedList.length) {
+      if (this.form.get('paymentTermSelected')?.value) {
+        if (this.form.get('paymentTermSelected')?.value?.discount) {
+          return this.totalKits() * (this.form.get('paymentTermSelected')?.value?.discount / 100);
+        }
       }
     }
     return 0;

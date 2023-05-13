@@ -56,7 +56,7 @@ export class OrderService {
   }
 
   public getAll() {
-    return this.http.get(`${environment.url}/salesOrders?size=9999999`)
+    return this.http.get(`${environment.url}/salesOrders/salesOrdersFromLoggedUser?size=9999999`)
   }
 
   public getAllItems(orderId: any) {

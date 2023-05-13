@@ -1,0 +1,16 @@
+<ion-header collapse="condense" mode="ios">
+  <ion-toolbar mode="ios">
+    <ion-title>Perfil</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-item lines="none" class="mt-3">
+    <ion-icon slot="start" name="person-circle-outline"></ion-icon>
+    <ion-label>
+      <h2>{{user?.name || 'Usuário sem nome'}}</h2>
+      <p style="font-size: 13px;">{{user?.email}}</p>
+    </ion-label>
+    <ion-button slot="end" fill="clear" size="small" (click)="logoff()">Sair</ion-button>
+  </ion-item>
+</ion-content>

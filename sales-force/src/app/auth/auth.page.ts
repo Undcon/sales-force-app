@@ -38,7 +38,9 @@ export class AuthPage implements OnInit {
         const form = this.form.getRawValue();
         form.token = response.token;
         localStorage.setItem('token', response.token);
+        const user = await this.sessionService.getUser(form.email.split('@')[0]).toPromise() as any;
         form.id = uuidv4();
+        form.name = user?.content[0]?.employee?.name;
         await this.dbService.add('sale_force_session', form).toPromise();
         this.router.navigate(['/sync']);
       } catch (err: any) {

@@ -22,6 +22,10 @@ export class SessionService {
       }
     });
   }
+
+  public getUser(email: string) {
+    return this.http.get(`${environment.url}/users?filter=login=${email}`);
+  }
 }
 
 export interface Session {
