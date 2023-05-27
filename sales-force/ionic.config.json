@@ -1,5 +1,5 @@
 {
-  "name": "sales-force",
+  "name": "Undcon - Pedidos",
   "integrations": {
     "capacitor": {
       "enabled": false

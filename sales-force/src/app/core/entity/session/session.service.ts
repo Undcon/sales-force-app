@@ -26,6 +26,10 @@ export class SessionService {
   public getUser(email: string) {
     return this.http.get(`${environment.url}/users?filter=login=${email}`);
   }
+
+  public getRepresentative(userId: string) {
+    return this.http.get(`${environment.url}/representatives?filter=user.id=${userId}`);
+  }
 }
 
 export interface Session {

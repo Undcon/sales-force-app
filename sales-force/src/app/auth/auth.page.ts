@@ -15,6 +15,7 @@ import { ToastController } from '@ionic/angular';
 export class AuthPage implements OnInit {
 
   public form: FormGroup;
+  public isLoading = false;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -32,6 +33,7 @@ export class AuthPage implements OnInit {
   }
 
   public async login() {
+    this.isLoading = true;
     if (this.form.valid) {
       try {
         const response = await this.sessionService.login(this.form.getRawValue()).toPromise() as any;
@@ -39,8 +41,13 @@ export class AuthPage implements OnInit {
         form.token = response.token;
         localStorage.setItem('token', response.token);
         const user = await this.sessionService.getUser(form.email.split('@')[0]).toPromise() as any;
+        const representantive = await this.sessionService.getRepresentative(user?.content[0]?.id).toPromise() as any;
         form.id = uuidv4();
         form.name = user?.content[0]?.employee?.name;
+        if (representantive?.content?.length) {
+          form.representantive = representantive.content[0].id;
+        }
+
         await this.dbService.add('sale_force_session', form).toPromise();
         this.router.navigate(['/sync']);
       } catch (err: any) {
@@ -51,12 +58,13 @@ export class AuthPage implements OnInit {
           position: 'top',
           color: 'danger'
         });
-    
+
         await toast.present();
       }
     } else {
       this.form.markAllAsTouched();
     }
+    this.isLoading = false;
   }
 
 }

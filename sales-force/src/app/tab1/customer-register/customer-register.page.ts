@@ -145,6 +145,12 @@ export class CustomerRegisterPage implements OnInit {
       if (form.phone3) {
         form.phone3 = form.phone3.replace('(', '').replace(')', '').replace('-', '').replace(/\s/g,'');
       }
+      const session = await this.dbService.getAll('sale_force_session').toPromise() as any;
+      if (session?.length) {
+        form.representative = {
+          id: session[0].representantive
+        };
+      }
       if (this.activatedRoute.snapshot.params['id'] === 'new') {
         form.id = uuidv4();
         form.sync = 0;
