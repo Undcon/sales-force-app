@@ -77,6 +77,30 @@ export class ProductRegisterPage implements OnInit {
     this.form.get('tablePaymentTerm')?.valueChanges.subscribe(async tablePaymentTerm => {
       try {
         if (tablePaymentTerm) {
+          try {
+            this.dbService.getAll('sale_force_table_price_product').subscribe(tablePriceProduct => {
+              this.tablePriceProduct = tablePriceProduct;
+              this.dbService.getAll('sale_force_product_kit').subscribe(productsKit => {
+                this.selectedItems.forEach(async selected => {
+                  if (!selected?.name?.items?.length) {
+                    const itens = productsKit.find((p: any) => p.id === selected?.name.id) as any;
+                    selected.name.items = itens?.items || [];
+                    selected.name.items.forEach((i: any) => {
+                      const productTablePrice = this.tablePriceProduct.find(ptp => ptp.product?.id === i.product?.id);
+                      if (productTablePrice) {
+                        i.price = productTablePrice.price;
+                      } else {
+                        alert(`O producto ${i.product.name} não possui preço configurado na tabela de preço selecionada!`);
+                        i.price = 0;
+                      }
+                    });
+                  }
+                })
+              });
+            });
+          } catch (err) {
+
+          }
           this.paymentTermSelectedList = await this.dbService.getAllByIndex('sale_force_table_time_product', 'tableId', IDBKeyRange.only(tablePaymentTerm.id)).toPromise() as any[];
           if (this.form.get('paymentTermSelected')?.value) {
             const item = this.paymentTermSelectedList.find(p => p.days === this.form.get('paymentTermSelected')?.value?.days);
@@ -91,7 +115,8 @@ export class ProductRegisterPage implements OnInit {
       } catch (err) {
 
       }
-    })
+    });
+
     this.itemForm = this.formBuilder.group({
       id: [],
       name: [null],
@@ -159,7 +184,7 @@ export class ProductRegisterPage implements OnInit {
     this.segment = event.detail.value;
   }
 
-  public async save() {
+  public async save(golBack = true) {
     if (this.form.valid) {
       const form = this.form.getRawValue();
       form.items = this.selectedItems;
@@ -175,7 +200,9 @@ export class ProductRegisterPage implements OnInit {
       } else {
         await this.dbService.update('sale_force_product', form).toPromise();
       }
-      this.navController.back();
+      if (golBack) {
+        this.navController.back();
+      }
     } else {
       const toast = await this.toastController.create({
         message: 'Selecione um cliente para salvar o pedido!',
@@ -246,6 +273,7 @@ export class ProductRegisterPage implements OnInit {
       if (form?.name?.items?.length) {
         form?.name?.items.forEach((i: any) => {
           const productTablePrice = this.tablePriceProduct.find(ptp => ptp.product?.id === i.product?.id);
+          debugger
           if (productTablePrice) {
             i.price = productTablePrice.price;
           } else {

@@ -10,13 +10,13 @@
   <div class="container-fluid">
     <form class="mt-3" [formGroup]="form">
       <ion-item mode="md">
-        <ion-label position="floating">Digite seu e-mail</ion-label>
+        <ion-label position="floating">login@cliente</ion-label>
         <ion-input formControlName="email"></ion-input>
       </ion-item>
       <app-controls-erros [control]="form.get('email')"
         [errorMessages]="{required: 'Este campo é obrigatório.', maxlength: 'O e-mail não pode conter mais de 250 caracteres.'}"></app-controls-erros>
       <ion-item mode="md" class="mt-1">
-        <ion-label position="floating">Digite sua senha</ion-label>
+        <ion-label position="floating">Senha</ion-label>
         <ion-input formControlName="password"></ion-input>
       </ion-item>
       <app-controls-erros [control]="form.get('password')"
@@ -24,9 +24,6 @@
       <ion-button *ngIf="!isLoading" (click)="login()" class="w-100 mt-5 mb-2">Acessar</ion-button>
       <div *ngIf="isLoading" class="text-center mt-3">
         <ion-spinner></ion-spinner>
-      </div>
-      <div class="text-center">
-        <ion-button fill="clear" color="medium">Esqueci minha senha</ion-button>
       </div>
     </form>
   </div>

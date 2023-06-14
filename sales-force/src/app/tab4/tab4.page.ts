@@ -27,6 +27,14 @@ export class Tab4Page implements OnInit {
     this.dbService.clear('sale_force_session').subscribe(() => {
       this.router.navigate(['/']);
     });
+    this.dbService.clear('sale_force_customer').subscribe();
+    this.dbService.clear('sale_force_last_sync').subscribe();
+    this.dbService.clear('sale_force_log').subscribe();
+    this.dbService.clear('sale_force_table_price').subscribe();
+    this.dbService.clear('sale_force_table_time').subscribe();
+    this.dbService.clear('sale_force_product').subscribe();
+    this.dbService.clear('sale_force_product_kit').subscribe();
+    this.dbService.clear('sale_force_table_time_product').subscribe();
   }
 
 }
