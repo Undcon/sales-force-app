@@ -198,12 +198,14 @@ export class SyncPage implements OnInit {
 
   private async loadCity() {
     this.step = 'Sincronizando cidades';
-    await this.dbService.clear('sale_force_city').toPromise();
-    const city = await this.cityService.getAll(0).toPromise() as any;
-    this.insertCity(city.content);
-    for (let i = 1; i < city.totalPages; i++) {
-      const cityFor = await this.cityService.getAll(i).toPromise() as any;
-      this.insertCity(cityFor.content);
+    if (new Date().getDay() === 1 || !(await this.dbService.getAll('sale_force_city').toPromise())?.length) {
+      await this.dbService.clear('sale_force_city').toPromise();
+      const city = await this.cityService.getAll(0).toPromise() as any;
+      this.insertCity(city.content);
+      for (let i = 1; i < city.totalPages; i++) {
+        const cityFor = await this.cityService.getAll(i).toPromise() as any;
+        this.insertCity(cityFor.content);
+      }
     }
   }
 
