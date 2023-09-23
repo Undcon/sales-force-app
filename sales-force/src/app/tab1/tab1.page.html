@@ -12,15 +12,20 @@
     placeholder="Digite para pesquisar..."></ion-searchbar>
   <ion-list mode="ios" *ngIf="customers?.length">
     <ion-item-sliding *ngFor="let customer of customers">
-      <ion-item [routerLink]="['/', 'features', 'tab1', 'customer-register', customer.id]">
-        <ion-label>
+      <ion-item [detail]="false">
+        <ion-label [routerLink]="['/', 'features', 'tab1', 'customer-register', customer.id]">
           <h2>{{customer.name}}</h2>
           <p *ngIf="customer.cpfCnpj" style="font-size: 12px;" class="text-muted">{{customer.cpfCnpj | mask:
             (customer.cpfCnpj.length > 11 ? '00.000.000/0000-00' : '000.000.000-00')}}</p>
           <p *ngIf="!customer.cpfCnpj" style="font-size: 12px;" class="text-muted">CPF ou CNPJ não informado</p>
         </ion-label>
-        <ion-badge *ngIf="!customer.sync" color="primary">Sincronizando</ion-badge>
-        <ion-badge *ngIf="customer.error" color="danger">Erro</ion-badge>
+        <ion-badge [routerLink]="['/', 'features', 'tab1', 'customer-register', customer.id]" *ngIf="!customer.sync"
+          color="primary">Sincronizando</ion-badge>
+        <ion-badge [routerLink]="['/', 'features', 'tab1', 'customer-register', customer.id]" *ngIf="customer.error"
+          color="danger">Erro</ion-badge>
+        <ion-button (click)="presentActionSheet(customer.id)" color="dark" fill="clear" slot="end">
+          <ion-icon name="ellipsis-vertical"></ion-icon>
+        </ion-button>
       </ion-item>
       <ion-item-options>
         <ion-item-option

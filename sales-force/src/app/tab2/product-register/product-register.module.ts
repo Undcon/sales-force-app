@@ -9,6 +9,7 @@ import { ProductRegisterPageRoutingModule } from './product-register-routing.mod
 import { ProductRegisterPage } from './product-register.page';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { NgxMaskDirective, NgxMaskPipe, provideNgxMask } from 'ngx-mask';
+import { InputNumberModule } from 'primeng/inputnumber';
 
 @NgModule({
   imports: [
@@ -19,7 +20,8 @@ import { NgxMaskDirective, NgxMaskPipe, provideNgxMask } from 'ngx-mask';
     SharedModule,
     NgxMaskDirective,
     NgxMaskPipe,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    InputNumberModule
   ],
   declarations: [ProductRegisterPage],
   providers: [provideNgxMask()]

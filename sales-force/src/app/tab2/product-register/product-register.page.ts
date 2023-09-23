@@ -1,7 +1,8 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { NavController, Platform, ToastController } from '@ionic/angular';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ActionSheetController, LoadingController, NavController, Platform, ToastController } from '@ionic/angular';
+import { settings } from 'cluster';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
 import { Customer } from 'src/app/core/entity/customer/customer.service';
 
@@ -55,13 +56,19 @@ export class ProductRegisterPage implements OnInit {
 
   public itensKitIndex = 0;
 
+  public isSended = false;
+
   constructor(
     private platform: Platform,
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
     private dbService: NgxIndexedDBService,
     private navController: NavController,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private route: Router,
+    private loadingCtrl: LoadingController,
+    private cdr: ChangeDetectorRef,
+    private actionSheetCtrl: ActionSheetController
   ) { }
 
   ngOnInit() {
@@ -72,7 +79,8 @@ export class ProductRegisterPage implements OnInit {
       tablePrice: [],
       tablePaymentTerm: [],
       observation: [],
-      paymentTermSelected: []
+      paymentTermSelected: [],
+      discountPercentInput: [0.00]
     });
     this.form.get('tablePaymentTerm')?.valueChanges.subscribe(async tablePaymentTerm => {
       try {
@@ -170,6 +178,15 @@ export class ProductRegisterPage implements OnInit {
         });
       });
 
+      if (this.activatedRoute.snapshot.data['entity']?.id && !isNaN(this.activatedRoute.snapshot.data['entity']?.id) && this.activatedRoute.snapshot.data['entity']?.sync) {
+        this.isSended = true;
+        this.form.disable();
+        this.itemForm.disable();
+      } else {
+        this.isSended = false;
+        this.form.enable();
+        this.itemForm.enable();
+      }
       this.form.patchValue(this.activatedRoute.snapshot.data['entity']);
       this.error = this.activatedRoute.snapshot.data['entity']?.error;
       if (this.activatedRoute.snapshot.data['entity']?.deleteds) {
@@ -180,18 +197,47 @@ export class ProductRegisterPage implements OnInit {
     }
   }
 
-  onSegmentChage(event: any) {
-    this.segment = event.detail.value;
+  async presentActionSheet(id: any) {
+    const actionSheet = await this.actionSheetCtrl.create({
+      header: 'Opções do kit',
+      mode: 'ios',
+      buttons: [
+        {
+          text: 'Editar kit',
+          handler: () => {
+            this.edit(id);
+          },
+        },
+        {
+          text: 'Remover kit',
+          role: 'destructive',
+          handler: () => {
+            this.removeItem(id);
+          },
+        },
+        {
+          text: 'Cancelar',
+          role: 'cancel'
+        },
+      ],
+    });
+
+    await actionSheet.present();
   }
 
-  public async save(golBack = true) {
+  onSegmentChage(event: any) {
+    this.segment = event.detail.value;
+    this.cdr.detectChanges();
+  }
+
+  public async save(goBack = true, status = 0) {
     if (this.form.valid) {
       const form = this.form.getRawValue();
       form.items = this.selectedItems;
       if (this.deleted && this.deleted.length) {
         form.deleteds = this.deleted;
       }
-      form.sync = 0;
+      form.sync = status;
       form.error = null;
       if (this.activatedRoute.snapshot.params['id'] === 'new') {
         form.createdAt = new Date().toJSON();
@@ -200,9 +246,33 @@ export class ProductRegisterPage implements OnInit {
       } else {
         await this.dbService.update('sale_force_product', form).toPromise();
       }
-      if (golBack) {
+      if (goBack) {
         this.navController.back();
+      } else if (this.isNew) {
+        const loading = await this.loadingCtrl.create({
+          message: 'Criando o rascunho...',
+          duration: 3000,
+        });
+        await loading.present();
+        await this.navController.back();
+        setTimeout(async () => {
+          await this.route.navigate(['/', 'features', 'tab2', 'product-register', form.id]);
+          setTimeout(() => {
+            loading.dismiss().then();
+          }, 600);
+        }, 50);
       }
+
+      const toast = await this.toastController.create({
+        message: 'Salvo como rascunho',
+        duration: 2500,
+        color: 'primary',
+        position: 'top',
+        buttons: ['OK']
+      });
+
+      await toast.present();
+
     } else {
       const toast = await this.toastController.create({
         message: 'Selecione um cliente para salvar o pedido!',
@@ -270,18 +340,20 @@ export class ProductRegisterPage implements OnInit {
         this.removeItem(form.id);
         form.id = uuidv4();
       }
+      let totalKit = 0;
       if (form?.name?.items?.length) {
         form?.name?.items.forEach((i: any) => {
           const productTablePrice = this.tablePriceProduct.find(ptp => ptp.product?.id === i.product?.id);
-          debugger
           if (productTablePrice) {
             i.price = productTablePrice.price;
+            totalKit += (productTablePrice.price * i.quantity);
           } else {
             alert(`O producto ${i.product.name} não possui preço configurado na tabela de preço selecionada!`);
             i.price = 0;
           }
         })
       }
+      form.price = totalKit;
       this.selectedItems.push(form);
       this.itemForm.reset();
     } else {
@@ -341,16 +413,14 @@ export class ProductRegisterPage implements OnInit {
     return this.parseCurrency(total);
   }
 
-  public totalKit(items: any[], quantity: number) {
-    let total = 0;
-    items.forEach(i => total += (parseFloat(i.price) * i.quantity));
-    return total * quantity;
+  public totalKit(items: any) {
+    return items?.price * items?.quantity;
   }
 
   public totalKits() {
     let total = 0;
     this.selectedItems.forEach(item => {
-      total += this.totalKit(item.name.items, item?.quantity);
+      total += this.totalKit(item);
     });
     return total;
   }
@@ -366,13 +436,22 @@ export class ProductRegisterPage implements OnInit {
     return 0;
   }
 
+  public totalDiscountByInput() {
+    if (this.paymentTermSelectedList.length) {
+      if (this.form.get('discountPercentInput')?.value) {
+        return this.totalKits() * (this.form.get('discountPercentInput')?.value / 100);
+      }
+    }
+    return 0;
+  }
+
   public showItensKit(index: number) {
     this.itensKitIndex = index;
     this.kitDetailModal.present()
   }
 
   public total() {
-    return this.totalKits() - this.totalDiscount();
+    return this.totalKits() - this.totalDiscountByInput();
   }
 
   public parseCurrency(value: number) {

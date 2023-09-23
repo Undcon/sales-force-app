@@ -32,3 +32,35 @@
 .ng-invalid.ng-touched:not(form) {
   border: solid 1px #cf1a1a !important;
 }
+
+.ng-invalid.ng-touched {
+  .p-inputmask { 
+    border: 1px solid #cf1a1a !important; 
+  }
+  .p-dropdown {
+    border: 1px solid #cf1a1a !important; 
+  }
+}
+
+.p-inputmask.ng-touched.ng-invalid .ui-inputtext {
+  border: solid 1px #cf1a1a !important;
+}
+
+body .p-inputnumber-input {
+  padding: 5px;
+  max-width: 100px !important;
+}
+
+body .p-inputnumber-button {
+  background: #00c427 !important;
+}
+
+ion-backdrop {
+  background: rgba(0, 0, 0, 0.8) !important;
+  --backdrop-opacity: rgba(0, 0, 0, 0.9) !important;
+}
+
+.required::after {
+  content: " *";
+  color: #cf1a1a;
+}

@@ -11,10 +11,11 @@
       <ion-button size="small" (click)="save()" color="light">Tentar novamente</ion-button>
     </div>
     <form class="mt-3" [formGroup]="form">
-      <h4 class="mb-3">Dados gerais</h4>
+      <h4 class="mb-3 ">Dados gerais</h4>
       <span class="p-float-label">
         <input formControlName="name" id="float-input" class="w-100" type="text" pInputText>
-        <label for="float-input">Digite o nome</label>
+        <label class="required" for="float-input">Digite o nome</label>
+        <app-controls-erros [control]="form.get('name')" [errorMessages]="{required: 'Este campo é obrigatório.'}"></app-controls-erros>
       </span>
       <ion-segment [value]="pfPj" (ionChange)="onSegmentChange($event)" mode="ios" class="mt-3">
         <ion-segment-button value="pf">Pessoa física</ion-segment-button>
@@ -23,24 +24,28 @@
       <span class="p-float-label mt-3">
         <p-inputMask formControlName="cpfCnpj" *ngIf="pfPj === 'pj'" mask="99.999.999/9999-99" class="w-100"
           [style]="{width: '100%'}"></p-inputMask>
-        <label for="float-input" *ngIf="pfPj === 'pj'">Digite o CNPJ</label>
+        <label class="required" for="float-input" *ngIf="pfPj === 'pj'">Digite o CNPJ</label>
         <p-inputMask formControlName="cpfCnpj" *ngIf="pfPj === 'pf'" mask="999.999.999-99" class="w-100"
           [style]="{width: '100%'}"></p-inputMask>
-        <label for="float-input" *ngIf="pfPj === 'pf'">Digite o CPF</label>
+        <label class="required" for="float-input" *ngIf="pfPj === 'pf'">Digite o CPF</label>
+        <span *ngIf="!isValidDoc" style="color: red; font-size: 12px;">Documento inválido</span>
+        <app-controls-erros [control]="form.get('cpfCnpj')" [errorMessages]="{required: 'Este campo é obrigatório.'}"></app-controls-erros>
       </span>
       <span class="p-float-label mt-3">
         <input formControlName="rg" id="float-input" class="w-100" type="text" pInputText>
-        <label for="float-input">Digite o RG</label>
+        <label class="required" for="float-input">Digite {{pfPj === 'pj' ? ' a Inscrição Estadual' : ' o RG'}}</label>
+        <app-controls-erros [control]="form.get('rg')" [errorMessages]="{required: 'Este campo é obrigatório.'}"></app-controls-erros>
       </span>
-      <span class="p-float-label mt-3">
+      <span class="p-float-label mt-3" *ngIf="pfPj !== 'pj'">
         <p-calendar formControlName="date" class="w-100" [style]="{width: '100%'}"
           formControlName="registerDate"></p-calendar>
-        <label for="float-input">Digite a data de nascimento</label>
+        <label class="required" for="float-input">Digite a data de nascimento</label>
       </span>
       <h4 class="mt-4">Dados de contato</h4>
       <span class="p-float-label mt-3">
-        <input formControlName="email" id="float-input" class="w-100" type="text" pInputText>
-        <label for="float-input">Digite o e-mail</label>
+        <input formControlName="email" id="float-input" class="w-100" type="email" pInputText>
+        <label class="required" for="float-input">Digite o e-mail</label>
+        <app-controls-erros [control]="form.get('email')" [errorMessages]="{required: 'Este campo é obrigatório.'}"></app-controls-erros>
       </span>
       <span class="p-float-label mt-3">
         <p-inputMask formControlName="phone2" mask="(99) 9999-9999" class="w-100"
@@ -50,7 +55,7 @@
       <span class="p-float-label mt-3">
         <p-inputMask formControlName="phone" mask="(99) 9 9999-9999" class="w-100"
           [style]="{width: '100%'}"></p-inputMask>
-        <label for="float-input">Digite o celular</label>
+        <label class="required" for="float-input">Digite o celular</label>
       </span>
       <span class="p-float-label mt-3">
         <p-inputMask formControlName="phone3" mask="(99) 9 9999-9999" class="w-100"
@@ -60,29 +65,35 @@
       <h4 class="mt-4">Dados de localização</h4>
       <span class="p-float-label mt-3">
         <p-inputMask formControlName="cep" mask="99999-999" class="w-100" [style]="{width: '100%'}"></p-inputMask>
-        <label for="float-input">Digite cep</label>
+        <label class="required" for="float-input">Digite cep</label>
+        <app-controls-erros [control]="form.get('cep')" [errorMessages]="{required: 'Este campo é obrigatório.'}"></app-controls-erros>
       </span>
       <span class="p-float-label mt-3">
         <p-dropdown [autoDisplayFirst]="false" [style]="{'minWidth':'100%'}" formControlName="state" class="w-100"
           [options]="states" optionLabel="name" optionValue="id"></p-dropdown>
-        <label for="float-input">Selecione o estado</label>
+        <label class="required" for="float-input">Selecione o estado</label>
+        <app-controls-erros [control]="form.get('state')" [errorMessages]="{required: 'Este campo é obrigatório.'}"></app-controls-erros>
       </span>
       <span class="p-float-label mt-3">
         <input (click)="filter.present()" [value]="form.get('city')?.value?.name" readonly id="float-input"
           class="w-100" type="text" pInputText>
-        <label for="float-input">Selecione a cidade</label>
+        <label class="required" for="float-input">Selecione a cidade</label>
+        <app-controls-erros [control]="form.get('city')" [errorMessages]="{required: 'Este campo é obrigatório.'}"></app-controls-erros>
       </span>
       <span class="p-float-label mt-3">
         <input formControlName="district" id="float-input" class="w-100" type="text" pInputText>
-        <label for="float-input">Digite o bairro</label>
+        <label class="required" for="float-input">Digite o bairro</label>
+        <app-controls-erros [control]="form.get('district')" [errorMessages]="{required: 'Este campo é obrigatório.'}"></app-controls-erros>
       </span>
       <span class="p-float-label mt-3">
         <input formControlName="address" id="float-input" class="w-100" type="text" pInputText>
-        <label for="float-input">Digite a rua</label>
+        <label class="required" for="float-input">Digite a rua</label>
+        <app-controls-erros [control]="form.get('address')" [errorMessages]="{required: 'Este campo é obrigatório.'}"></app-controls-erros>
       </span>
       <span class="p-float-label mt-3">
         <input formControlName="addressNumber" id="float-input" class="w-100" type="text" pInputText>
-        <label for="float-input">Digite o número</label>
+        <label class="required" for="float-input">Digite o número</label>
+        <app-controls-erros [control]="form.get('addressNumber')" [errorMessages]="{required: 'Este campo é obrigatório.'}"></app-controls-erros>
       </span>
       <span class="p-float-label mt-3">
         <input formControlName="complement" id="float-input" class="w-100" type="text" pInputText>

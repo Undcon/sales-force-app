@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { AlertController, Platform, ToastController } from '@ionic/angular';
+import { ActionSheetController, AlertController, Platform, ToastController } from '@ionic/angular';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
 import { Customer, CustomerService } from '../core/entity/customer/customer.service';
 import { SyncService } from '../core/entity/sync/sync.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-tab1',
@@ -26,7 +27,9 @@ export class Tab1Page implements OnInit {
     private alertController: AlertController,
     private syncService: SyncService,
     private customerService: CustomerService,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private actionSheetCtrl: ActionSheetController,
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -70,6 +73,34 @@ export class Tab1Page implements OnInit {
     });
   }
 
+  async presentActionSheet(id: any) {
+    const actionSheet = await this.actionSheetCtrl.create({
+      header: 'Opções do cliente',
+      mode: 'ios',
+      buttons: [
+        {
+          text: 'Editar cliente',
+          handler: () => {
+            this.router.navigate(['/', 'features', 'tab1', 'customer-register', id]);
+          },
+        },
+        {
+          text: 'Remover cliente',
+          role: 'destructive',
+          handler: () => {
+            this.delete(id);
+          },
+        },
+        {
+          text: 'Cancelar',
+          role: 'cancel'
+        },
+      ],
+    });
+
+    await actionSheet.present();
+  }
+
   public loadMore(event: any) {
     this.page ++;
     for (let i = ((100 * this.page) - 100); i < (100 * this.page); i++) {
@@ -103,6 +134,7 @@ export class Tab1Page implements OnInit {
       const alert = await this.alertController.create({
         header: 'Remover cliente',
         message: 'Ao remover um cliente não será possível desfazer está operação!',
+        backdropDismiss: false,
         buttons: [
           {
             text: 'Cancelar',

@@ -110,6 +110,7 @@ export class SyncPage implements OnInit {
               return {
                 id: c.id,
                 quantity: c.quantity || 1,
+                price: c.price,
                 name: {
                   id: c.productKit.id,
                   name: c.productKit.name,

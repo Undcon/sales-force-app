@@ -43,6 +43,7 @@ export class OrderService {
     payload.salesOrder = {
       id: salesOrder
     };
+    payload.price = item.price;
     delete payload.name;
     return this.http.post(`${environment.url}/salesOrders/${salesOrder}/itens`, payload);
   }
@@ -53,6 +54,10 @@ export class OrderService {
 
   public deleteItem(orderId: any, itemId: any) {
     return this.http.delete(`${environment.url}/salesOrders/${orderId}/itens/${itemId}`);
+  }
+
+  public generatePdf(orderId: any) {
+    return this.http.get(`${environment.url}/salesOrders/${orderId}/generatePdf`);
   }
 
   public getAll() {

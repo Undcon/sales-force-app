@@ -12,15 +12,19 @@
     placeholder="Pesquisar por cliente"></ion-searchbar>
   <ion-list mode="ios">
     <ion-item-sliding *ngFor="let item of product">
-      <ion-item [routerLink]="['/', 'features', 'tab2', 'product-register', item.id]">
-        <ion-label>
+      <ion-item detail="false">
+        <ion-label [routerLink]="['/', 'features', 'tab2', 'product-register', item.id]" >
           <h5 *ngIf="item?.customer?.name">Cliente: {{item?.customer?.name}}</h5>
           <h5 *ngIf="!item?.customer?.name">Esboço: {{item?.createdAt}}</h5>
           <h5 *ngIf="item?.type === 'order'">Erro ao integrar pedido</h5>
           <p style="font-size: 12px;" class="text-muted mb-0 pb-0">Tabela de preço: {{item?.tablePrice?.name || 'Não informado'}}
           </p>
-          <p style="font-size: 12px;" class="text-muted mt-0 pt-0">Tabela de prazo: {{item?.tablePaymentTerm?.name ||
+          <p style="font-size: 12px;" class="text-muted mt-0 pt-0">Qtd. peças: {{item.productsQty ||
             'Não informado'}}</p>
+        </ion-label>
+        <ion-label [routerLink]="['/', 'features', 'tab2', 'product-register', item.id]"
+          slot="end" *ngIf="item.sync !== 0 && item.sync !== -1 && !(item.sync === 1 && item.error)">
+          {{parseCurrency(item.total)}}
         </ion-label>
         <ion-badge [routerLink]="['/', 'features', 'tab2', 'product-register', item.id]"
           *ngIf="item.sync === 0">Sincronizando</ion-badge>
@@ -28,8 +32,11 @@
           *ngIf="item.sync === -1">Esboço</ion-badge>
         <ion-badge color="danger" [routerLink]="['/', 'features', 'tab2', 'product-register', item.id]"
           *ngIf="item.sync === 1 && item.error">Erro</ion-badge>
+        <ion-button (click)="presentActionSheet(item.id)" color="dark" fill="clear" slot="end">
+          <ion-icon name="ellipsis-vertical"></ion-icon>
+        </ion-button>
       </ion-item>
-      <ion-item-options>
+      <ion-item-options #options>
         <ion-item-option [routerLink]="['/', 'features', 'tab2', 'product-register', item.id]">Editar</ion-item-option>
         <ion-item-option (click)="delete(item.id)" color="danger">Remover</ion-item-option>
       </ion-item-options>
