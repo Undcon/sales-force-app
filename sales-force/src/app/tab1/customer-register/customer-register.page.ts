@@ -58,13 +58,13 @@ export class CustomerRegisterPage implements OnInit {
       phone3: [null],
       cpfCnpj: [null, Validators.required],
       registerDate: [null],
-      birthDate: [null, Validators.required],
+      birthDate: [null],
       addressNumber: [null, Validators.required],
       complement: [null],
       cep: [null, Validators.required],
       rg: [null, Validators.required],
       email: [null, Validators.required],
-      motherName: [null, Validators.required]
+      motherName: [null]
     });
     this.form.get('cpfCnpj')?.valueChanges.subscribe(cpfCnpj => {
       if (cpfCnpj && cpfCnpj.replace('_', '').replace('_', '').replace('.', '').replace('.', '').replace('-', '').length > 11) {
@@ -227,7 +227,7 @@ export class CustomerRegisterPage implements OnInit {
       }
       if (form.cpfCnpj.length === 11 && !this.cpf(form.cpfCnpj)) {
         return alert('O CPF informado não é válido!');
-      } else if (!this.cnpj(form.cpfCnpj)) {
+      } else if (form.cpfCnpj.length > 11 && !this.cnpj(form.cpfCnpj)) {
         return alert('O CNPJ informado não é válido!');
       }
       if (form.state) {

@@ -429,7 +429,7 @@ export class ProductRegisterPage implements OnInit {
     if (this.paymentTermSelectedList.length) {
       if (this.form.get('paymentTermSelected')?.value) {
         if (this.form.get('paymentTermSelected')?.value?.discount) {
-          return this.totalKits() * (this.form.get('paymentTermSelected')?.value?.discount / 100);
+          return this.form.get('paymentTermSelected')?.value?.discount;
         }
       }
     }

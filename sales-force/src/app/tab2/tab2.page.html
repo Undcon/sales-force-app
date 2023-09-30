@@ -23,15 +23,16 @@
             'Não informado'}}</p>
         </ion-label>
         <ion-label [routerLink]="['/', 'features', 'tab2', 'product-register', item.id]"
-          slot="end" *ngIf="item.sync !== 0 && item.sync !== -1 && !(item.sync === 1 && item.error)">
-          {{parseCurrency(item.total)}}
+          slot="end">
+          <ion-badge [routerLink]="['/', 'features', 'tab2', 'product-register', item.id]"
+            *ngIf="item.sync === 0">Sincronizando</ion-badge>
+          <ion-badge [routerLink]="['/', 'features', 'tab2', 'product-register', item.id]"
+            *ngIf="item.sync === -1">Esboço</ion-badge>
+          <ion-badge color="danger" [routerLink]="['/', 'features', 'tab2', 'product-register', item.id]"
+            *ngIf="item.sync === 1 && item.error">Erro</ion-badge>
+          <p style="color: black; padding-left: 5px;">{{parseCurrency(item.total)}}</p>
         </ion-label>
-        <ion-badge [routerLink]="['/', 'features', 'tab2', 'product-register', item.id]"
-          *ngIf="item.sync === 0">Sincronizando</ion-badge>
-        <ion-badge [routerLink]="['/', 'features', 'tab2', 'product-register', item.id]"
-          *ngIf="item.sync === -1">Esboço</ion-badge>
-        <ion-badge color="danger" [routerLink]="['/', 'features', 'tab2', 'product-register', item.id]"
-          *ngIf="item.sync === 1 && item.error">Erro</ion-badge>
+        
         <ion-button (click)="presentActionSheet(item.id)" color="dark" fill="clear" slot="end">
           <ion-icon name="ellipsis-vertical"></ion-icon>
         </ion-button>

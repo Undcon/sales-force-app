@@ -186,53 +186,35 @@ export class Tab2Page implements OnInit {
   }
 
   public async delete(id: string) {
-    if (navigator.onLine) {
-      const alert = await this.alertController.create({
-        header: 'Remover pedido',
-        message: 'Ao remover um pedido não será possível desfazer está operação!',
-        backdropDismiss: false,
-        buttons: [
-          {
-            text: 'Cancelar',
-          },
-          {
-            text: 'Remover',
-            cssClass: 'alert-button-confirm',
-            handler: () => {
-              if (!isNaN(id as any)) {
-                this.orderService.delete(id).subscribe(() => {
-                  this.dbService.deleteByKey('sale_force_product', id).subscribe();
-                  this.product = this.product.filter(c => c.id !== id);
-                  this._product = this._product.filter(c => c.id !== id);
-                }, async err => {
-                  const toast = await this.toastController.create({
-                    message: err.error.message,
-                    duration: 4500,
-                    color: 'danger',
-                    position: 'top'
-                  });
-
-                  await toast.present();
-                });
-              } else {
-                this.dbService.deleteByKey('sale_force_product', id).subscribe();
-                this.product = this.product.filter(c => c.id !== id);
-                this._product = this._product.filter(c => c.id !== id);
-              }
-            }
-          },
-        ],
-      });
-
-      await alert.present();
-    } else {
+    if (!isNaN(id as any)) {
       const alert = await this.alertController.create({
         header: 'Alerta',
-        message: 'Somente é possível excluir um pedido se possuir internet!',
+        message: 'Somente é possível excluir um pedido não enviados!',
         backdropDismiss: false,
         buttons: ['OK']
       });
-      await alert.present();
+      return await alert.present();
     }
+    const alert = await this.alertController.create({
+      header: 'Remover pedido',
+      message: 'Ao remover um pedido não será possível desfazer está operação!',
+      backdropDismiss: false,
+      buttons: [
+        {
+          text: 'Cancelar',
+        },
+        {
+          text: 'Remover',
+          cssClass: 'alert-button-confirm',
+          handler: async () => {
+            this.dbService.deleteByKey('sale_force_product', id).subscribe();
+            this.product = this.product.filter(c => c.id !== id);
+            this._product = this._product.filter(c => c.id !== id);
+          }
+        },
+      ],
+    });
+
+    await alert.present();
   }
 }
