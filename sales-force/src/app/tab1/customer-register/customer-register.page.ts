@@ -120,6 +120,8 @@ export class CustomerRegisterPage implements OnInit {
       this.error = customer.error;
       if (customer?.cpfCnpj?.length > 11) {
         this.pfPj = 'pj';
+      } else {
+        this.pfPj = 'pf';
       }
       this.form.patchValue(customer);
     }

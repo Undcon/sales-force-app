@@ -50,6 +50,9 @@ export class SyncService {
           delete order.id;
           order.tableOfPaymentTermItem = {};
           try {
+            if (isNaN(order.customer.id)) {
+              throw new Error('Aguardando o cadastro do cliente ser efetivado!');
+            }
             const o = await this.orderService.create(order).toPromise() as any;
             order.id = o.id.toString();
             order.sync = 1;
@@ -65,14 +68,20 @@ export class SyncService {
             order.sync = 1;
             order.id = order.oldid;
             order.error = err.error?.message ? err.error?.message : JSON.stringify(err.error);
+            if (err.message) {
+              order.error = err.message;
+              order.sync = 0;
+            }
             if (err.status !== 0) {
-              this.error.emit(1);
               await this.dbService.update('sale_force_product', order).toPromise();
-              await this.dbService.add('sale_force_log', {
-                log: `Erro ao inserir pedido`,
-                id: order.oldid,
-                type: 'order'
-              }).toPromise();
+              if (order.sync !== 0) {
+                this.error.emit(1);
+                await this.dbService.add('sale_force_log', {
+                  log: `Erro ao inserir pedido`,
+                  id: order.oldid,
+                  type: 'order'
+                }).toPromise();
+              }
             }
           }
         } else {
@@ -133,6 +142,16 @@ export class SyncService {
             customer.id = c.id.toString();
             customer.sync = 1;
             await this.dbService.add('sale_force_customer', customer).toPromise();
+            this.dbService.getAll('sale_force_product').subscribe()
+            const orders = await this.dbService.getAllByIndex('sale_force_product', 'sync', IDBKeyRange.only(0)).toPromise() as any[];
+            for (let order of orders) {
+              if (order.error === 'Aguardando o cadastro do cliente ser efetivado!' && order.customer.id === customer.oldid) {
+                order.customer.id = customer.id;
+                order.status = 0;
+                order.error = null;
+                await this.dbService.update('sale_force_product', order).toPromise();
+              }
+            }
             this.customerSync.emit({
               oldid: customer.oldid,
               id: customer.id

@@ -25,11 +25,11 @@
         <ion-label [routerLink]="['/', 'features', 'tab2', 'product-register', item.id]"
           slot="end">
           <ion-badge [routerLink]="['/', 'features', 'tab2', 'product-register', item.id]"
-            *ngIf="item.sync === 0">Sincronizando</ion-badge>
+            *ngIf="item.sync === 0 && !item.error">Sincronizando</ion-badge>
           <ion-badge [routerLink]="['/', 'features', 'tab2', 'product-register', item.id]"
             *ngIf="item.sync === -1">Esboço</ion-badge>
           <ion-badge color="danger" [routerLink]="['/', 'features', 'tab2', 'product-register', item.id]"
-            *ngIf="item.sync === 1 && item.error">Erro</ion-badge>
+            *ngIf="item.error">Erro</ion-badge>
           <p style="color: black; padding-left: 5px;">{{parseCurrency(item.total)}}</p>
         </ion-label>
         

@@ -5,10 +5,16 @@ import { OrderService } from '../core/entity/order/order.service';
 import { SyncService } from '../core/entity/sync/sync.service';
 import { Router } from '@angular/router';
 
+import { FileOpener } from '@awesome-cordova-plugins/file-opener/ngx';
+import { FileTransfer, FileUploadOptions, FileTransferObject } from '@awesome-cordova-plugins/file-transfer/ngx';
+import { File } from '@awesome-cordova-plugins/file/ngx';
+import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
+
 @Component({
   selector: 'app-tab2',
   templateUrl: 'tab2.page.html',
-  styleUrls: ['tab2.page.scss']
+  styleUrls: ['tab2.page.scss'],
+  providers: [FileOpener, FileTransfer, File, InAppBrowser]
 })
 export class Tab2Page implements OnInit {
 
@@ -31,7 +37,11 @@ export class Tab2Page implements OnInit {
     private toastController: ToastController,
     private actionSheetCtrl: ActionSheetController,
     private loadingCtrl: LoadingController,
-    private router: Router
+    private router: Router,
+    private fileOpener: FileOpener,
+    private transfer: FileTransfer, 
+    private file: File,
+    private iab: InAppBrowser
   ) { }
 
   ngOnInit() {
@@ -117,12 +127,21 @@ export class Tab2Page implements OnInit {
           text: 'Gerar PDF',
           handler: async () => {
             if (!isNaN(id as any)) {
+              actionSheet.dismiss();
               const loading = await this.loadingCtrl.create({
                 message: 'Aguarde...',
               });
+              loading.present();
               try {
                 const url = await this.orderService.generatePdf(id).toPromise() as any;
-                window.open(url.url);
+                const fileTransfer: FileTransferObject = this.transfer.create();
+                const name = this.file.dataDirectory + `${new Date().getTime}.pdf`;
+                if (this.platform.is('ios')) {
+                  this.iab.create(url.url, '_system');
+                } else  {
+                  await fileTransfer.download(url.url, name);
+                  this.fileOpener.showOpenWithDialog(name, 'application/pdf').then(() => {}).catch(err => alert(JSON.stringify(err)));
+                }
               } catch (err) {
                 alert('Ocorreu um erro!');
               }
