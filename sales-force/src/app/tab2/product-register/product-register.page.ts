@@ -98,7 +98,7 @@ export class ProductRegisterPage implements OnInit {
                       if (productTablePrice) {
                         i.price = productTablePrice.price;
                       } else {
-                        alert(`O producto ${i.product.name} não possui preço configurado na tabela de preço selecionada!`);
+                        alert(`O produto ${i.product.name} não possui preço configurado na tabela de preço selecionada!`);
                         i.price = 0;
                       }
                     });
@@ -169,7 +169,7 @@ export class ProductRegisterPage implements OnInit {
                 if (productTablePrice) {
                   i.price = productTablePrice.price;
                 } else {
-                  alert(`O producto ${i.product.name} não possui preço configurado na tabela de preço selecionada!`);
+                  alert(`O produto ${i.product.name} não possui preço configurado na tabela de preço selecionada!`);
                   i.price = 0;
                 }
               });
@@ -288,7 +288,7 @@ export class ProductRegisterPage implements OnInit {
 
   public onCustomerFilter() {
     if (this.customerFilter) {
-      this.customers = this._customers.filter(c => c.name.toLowerCase().includes(this.customerFilter.toLowerCase()) || c.cpfCnpj === this.customerFilter);
+      this.customers = this._customers.filter(c => c.name.toLowerCase().includes(this.customerFilter.toLowerCase()) || c.cpfCnpj.includes(this.customerFilter));
     } else {
       this.customers = [];
     }
@@ -348,7 +348,7 @@ export class ProductRegisterPage implements OnInit {
             i.price = productTablePrice.price;
             totalKit += (productTablePrice.price * i.quantity);
           } else {
-            alert(`O producto ${i.product.name} não possui preço configurado na tabela de preço selecionada!`);
+            alert(`O produto ${i.product.name} não possui preço configurado na tabela de preço selecionada!`);
             i.price = 0;
           }
         })
@@ -374,7 +374,20 @@ export class ProductRegisterPage implements OnInit {
   }
 
   public async showItens() {
-    this._items = await this.dbService.getAll('sale_force_product_kit').toPromise() as any[];
+    const _items = await this.dbService.getAll('sale_force_product_kit').toPromise() as any[];
+    this._items = [];
+    _items.filter(itm => {
+      let exists = true;
+      itm.items.forEach((i: any) => {
+        const productTablePrice = this.tablePriceProduct.find(ptp => ptp.product?.id === i.product?.id);
+        if (!productTablePrice) {
+          exists = false;
+        }
+      });
+      if (exists) {
+        this._items.push(itm);
+      }
+    })
     this.items = [];
     for (let i = 0; i < 100; i++) {
       if (this._items[i]) {
@@ -390,7 +403,7 @@ export class ProductRegisterPage implements OnInit {
 
   public onProductFilter() {
     if (this.productFilter) {
-      this.items = JSON.parse(JSON.stringify(this._items.filter(c => c.product && c.product.name && c.product.name.toLowerCase().includes(this.productFilter.toLowerCase()))));
+      this.items = JSON.parse(JSON.stringify(this._items.filter(c => c && c.name && c.name.toLowerCase().includes(this.productFilter.toLowerCase()))));
     } else {
       this.items = [];
       for (let i = 0; i < 100; i++) {

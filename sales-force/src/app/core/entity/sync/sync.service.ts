@@ -87,6 +87,9 @@ export class SyncService {
         } else {
           order.sync = 1;
           try {
+            if (isNaN(order.customer.id)) {
+              throw new Error('Aguardando o cadastro do cliente ser efetivado!');
+            }
             await this.orderService.update(order).toPromise() as any;
             order.id = order.id.toString();
             if (order?.deleteds?.length) {

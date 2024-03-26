@@ -111,7 +111,11 @@
         <ion-label>
           <h2 class="font-weight-bold mb-0 pb-0 pl-1">Cidades</h2>
         </ion-label>
-        <ion-button (click)="filter.dismiss()" fill="clear" slot="end">
+        <ion-button (click)="updateCities()" fill="clear" slot="end">
+          <ion-icon name="refresh"></ion-icon>
+          Sincronizar
+        </ion-button>
+        <ion-button color="dark" (click)="filter.dismiss()" fill="clear" slot="end">
           Cancelar
         </ion-button>
       </ion-toolbar>

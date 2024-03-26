@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { NavController, Platform, ToastController } from '@ionic/angular';
+import { LoadingController, NavController, Platform, ToastController } from '@ionic/angular';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
 import { CityService } from 'src/app/core/entity/city/city.service';
 
@@ -41,7 +41,8 @@ export class CustomerRegisterPage implements OnInit {
     private dbService: NgxIndexedDBService,
     private activatedRoute: ActivatedRoute,
     private cdr: ChangeDetectorRef,
-    private cityService: CityService
+    private cityService: CityService,
+    private loadingCtrl: LoadingController
   ) { }
 
   ngOnInit() {
@@ -72,14 +73,14 @@ export class CustomerRegisterPage implements OnInit {
         try {
           this.isValidDoc = this.cnpj(cpfCnpj.replace('_', '').replace('_', '').replace('.', '').replace('.', '').replace('-', ''));
         } catch (err) {
-          console.log(err); 
+          console.log(err);
         }
       } else {
         this.isCNPJ = false;
         try {
           this.isValidDoc = this.cpf(cpfCnpj.replace('_', '').replace('_', '').replace('.', '').replace('.', '').replace('-', ''));
         } catch (err) {
-          console.log(err); 
+          console.log(err);
         }
       }
     });
@@ -124,6 +125,55 @@ export class CustomerRegisterPage implements OnInit {
         this.pfPj = 'pf';
       }
       this.form.patchValue(customer);
+    }
+  }
+
+  public async updateCities() {
+    const loading = await this.loadingCtrl.create({
+      message: 'Sincronizando as cidades...'
+    });
+    loading.present();
+    try {
+      await this.dbService.clear('sale_force_city').toPromise();
+      const city = await this.cityService.getAll(0).toPromise() as any;
+      this.insertCity(city.content);
+      for (let i = 1; i < city.totalPages; i++) {
+        const cityFor = await this.cityService.getAll(i).toPromise() as any;
+        await this.insertCity(cityFor.content);
+      }
+      this.dbService.getAll('sale_force_city').subscribe(city => {
+        this._city = city as any[];
+        this.city = this._city.filter(c => c.state.id === this.form.get('state')?.value);
+        this.city = this.city.filter(c => c.name.toLowerCase().includes(this.cityFilter.toLowerCase()));
+        this.cdr.detectChanges();
+      });
+    } catch (err: any) {
+      if (err.status === 0) {
+        const toast = await this.toastController.create({
+          message: 'Sem conexão com a internet',
+          duration: 2500,
+          position: 'top',
+        });
+
+        await toast.present();
+      } else {
+        const toast = await this.toastController.create({
+          message: err.error?.message ? err.error?.message : JSON.stringify(err.error),
+          duration: 2500,
+          position: 'top',
+        });
+
+        await toast.present();
+      }
+    }
+    loading.dismiss();
+  }
+
+  private async insertCity(cities: any[]) {
+    if (cities) {
+      for (const city of cities) {
+        await this.dbService.add('sale_force_city', city).toPromise();
+      }
     }
   }
 
