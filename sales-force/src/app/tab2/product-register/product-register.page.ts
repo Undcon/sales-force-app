@@ -87,7 +87,8 @@ export class ProductRegisterPage implements OnInit {
         if (tablePaymentTerm) {
           try {
             this.dbService.getAll('sale_force_table_price_product').subscribe(tablePriceProduct => {
-              this.tablePriceProduct = tablePriceProduct;
+              const price = this.form.get('tablePrice')?.getRawValue();
+              this.tablePriceProduct = tablePriceProduct.filter((tp: any) => tp.table.id === price.id);
               this.dbService.getAll('sale_force_product_kit').subscribe(productsKit => {
                 this.selectedItems.forEach(async selected => {
                   if (!selected?.name?.items?.length) {
@@ -378,6 +379,9 @@ export class ProductRegisterPage implements OnInit {
     this._items = [];
     _items.filter(itm => {
       let exists = true;
+      if (!itm.items?.length) {
+        exists = false;
+      }
       itm.items.forEach((i: any) => {
         const productTablePrice = this.tablePriceProduct.find(ptp => ptp.product?.id === i.product?.id);
         if (!productTablePrice) {
