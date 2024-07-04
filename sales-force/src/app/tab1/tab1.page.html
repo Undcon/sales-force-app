@@ -12,8 +12,8 @@
     placeholder="Digite para pesquisar..."></ion-searchbar>
   <ion-list mode="ios" *ngIf="customers?.length">
     <ion-item-sliding *ngFor="let customer of customers">
-      <ion-item [detail]="false">
-        <ion-label [routerLink]="['/', 'features', 'tab1', 'customer-register', customer.id]">
+      <ion-item [detail]="false" class="item-text-wrap">
+        <ion-label class="ion-text-wrap" [routerLink]="['/', 'features', 'tab1', 'customer-register', customer.id]">
           <h2>{{customer.name}}</h2>
           <p *ngIf="customer.cpfCnpj" style="font-size: 12px;" class="text-muted">{{customer.cpfCnpj | mask:
             (customer.cpfCnpj.length > 11 ? '00.000.000/0000-00' : '000.000.000-00')}}</p>

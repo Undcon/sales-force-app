@@ -129,7 +129,7 @@ export class ProductRegisterPage implements OnInit {
     this.itemForm = this.formBuilder.group({
       id: [],
       name: [null],
-      quantity: [null, Validators.compose([Validators.required])]
+      quantity: [null, Validators.compose([Validators.required, Validators.min(1)])]
     });
   }
 
@@ -332,8 +332,8 @@ export class ProductRegisterPage implements OnInit {
   }
 
   public addItem() {
+    const form = this.itemForm.getRawValue();
     if (this.itemForm.valid) {
-      const form = this.itemForm.getRawValue();
       form.sync = 0;
       if (!form.id) {
         form.id = uuidv4();
@@ -359,6 +359,9 @@ export class ProductRegisterPage implements OnInit {
       this.itemForm.reset();
     } else {
       this.form.markAllAsTouched();
+      if(!form.quantity){
+        alert(`A quantidade deve ser informada!`);
+      }
     }
   }
 

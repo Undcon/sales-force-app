@@ -16,6 +16,6 @@ export class CityService {
   }
 
   public loadCep(cep: string) {
-    return this.http.get(`https://viacep.com.br/ws/${cep}/json`);
+    return this.http.get(`${environment.url}/ceps?cep=${cep}`);
   }
 }

@@ -13,7 +13,7 @@
   <ion-list mode="ios">
     <ion-item-sliding *ngFor="let item of product">
       <ion-item detail="false">
-        <ion-label [routerLink]="['/', 'features', 'tab2', 'product-register', item.id]" >
+        <ion-label class="ion-text-wrap" [routerLink]="['/', 'features', 'tab2', 'product-register', item.id]" >
           <h5 *ngIf="item?.customer?.name">Cliente: {{item?.customer?.name}}</h5>
           <h5 *ngIf="!item?.customer?.name">Esboço: {{item?.createdAt}}</h5>
           <h5 *ngIf="item?.type === 'order'">Erro ao integrar pedido</h5>

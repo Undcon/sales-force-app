@@ -92,12 +92,12 @@ export class CustomerRegisterPage implements OnInit {
     this.form.get('cep')?.valueChanges.subscribe(async cep => {
       try {
         if (cep && cep.replace('_', '').replace('-', '').length >= 8) {
+          cep = cep.replace('_', '').replace('-', '');
           const data = await this.cityService.loadCep(cep).toPromise() as any;
-          this.form.get('address')?.patchValue(data.logradouro);
-          this.form.get('district')?.patchValue(data.bairro);
-          const state = this.states.find(s => s.initials === data.uf).id;
-          this.form.get('state')?.patchValue(state);
-          this.form.get('city')?.patchValue(this._city.find(c => c.name.toLowerCase() == data.localidade.toLowerCase() && c.state.initials === data.uf));
+          this.form.get('address')?.patchValue(data.address);
+          this.form.get('district')?.patchValue(data.district);
+          this.form.get('state')?.patchValue(data.uf.id);
+          this.form.get('city')?.patchValue(data.city);
         }
       } catch (err) {
 

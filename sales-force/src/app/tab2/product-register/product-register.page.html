@@ -64,7 +64,7 @@
         <ion-list mode="ios">
           <ion-item-sliding *ngFor="let item of selectedItems">
             <ion-item class="no-padding">
-              <ion-label>
+              <ion-label class="ion-text-wrap">
                 <h4>{{item?.name?.name}}</h4>
                 <p>{{item?.quantity}} quantidades</p>
               </ion-label>
@@ -160,7 +160,7 @@
     <ion-content style="--background: #ffffff">
       <ion-list>
         <ion-item *ngFor="let product of selectedItems[itensKitIndex].name.items">
-          <ion-label>
+          <ion-label class="ion-text-wrap">
             <h2>{{product?.product?.name}}</h2>
             <p>Qtd: {{product?.quantity}} | Preco unit.: {{parseCurrency(product?.price)}}</p>
           </ion-label>
@@ -189,7 +189,7 @@
         placeholder="Pesquisar"></ion-searchbar>
       <ion-list mode="ios" *ngIf="customers?.length">
         <ion-item (click)="onSelectCustomer(item, customerModal)" *ngFor="let item of customers">
-          <ion-label>
+          <ion-label class="ion-text-wrap" >
             <h2>{{item.name}}</h2>
             <p *ngIf="item.cpfCnpj" style="font-size: 12px;" class="text-muted">{{item.cpfCnpj | mask:
               (item.cpfCnpj.length > 11 ? '00.000.000/0000-00' : '000.000.000-00')}}</p>
@@ -230,7 +230,7 @@
         placeholder="Pesquisar"></ion-searchbar>
       <ion-list mode="ios" *ngIf="tablePrices?.length">
         <ion-item (click)="onSelectTablePrice(item, tablePriceModal)" *ngFor="let item of tablePrices">
-          <ion-label>
+          <ion-label class="ion-text-wrap" >
             <h2>{{item.name}}</h2>
           </ion-label>
           <ion-button slot="end" fill="clear">Selecionar</ion-button>
@@ -269,7 +269,7 @@
         placeholder="Pesquisar"></ion-searchbar>
       <ion-list mode="ios" *ngIf="tableTimes?.length">
         <ion-item (click)="onSelectTableTime(item, tableTimeModal)" *ngFor="let item of tableTimes">
-          <ion-label>
+          <ion-label class="ion-text-wrap">
             <h2>{{item.name}}</h2>
           </ion-label>
           <ion-button slot="end" fill="clear">Selecionar</ion-button>
@@ -307,7 +307,7 @@
         placeholder="Pesquisar"></ion-searchbar>
       <ion-list mode="ios" *ngIf="items?.length">
         <ion-item (click)="onSelectItem(item, modalItem)" *ngFor="let item of items">
-          <ion-label>
+          <ion-label class="ion-text-wrap">
             <h2>{{item?.name}}</h2>
             <p class="text-muted" style="font-size: 12px;">Itens: {{item?.product || 'Não informado'}}</p>
           </ion-label>

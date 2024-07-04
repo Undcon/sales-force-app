@@ -152,7 +152,7 @@ export class SyncPage implements OnInit {
   }
 
   private async syncTableTimeProduct() {
-    this.step = 'Sincronizando produtos da tabela de prazo';
+    this.step = 'Sincronizando itens das tabelas de prazo';
     await this.dbService.clear('sale_force_table_time_product').toPromise();
     const tables = await this.dbService.getAll('sale_force_table_time').toPromise() as any[];
     for (const table of tables) {
@@ -165,7 +165,7 @@ export class SyncPage implements OnInit {
   }
 
   private async syncTablePriceProduct() {
-    this.step = 'Sincronizando produtos da tabela de preço';
+    this.step = 'Sincronizando produtos das tabelas de preço';
     await this.dbService.clear('sale_force_table_price_product').toPromise();
     const tables = await this.dbService.getAll('sale_force_table_price').toPromise() as any[];
     for (const table of tables) {
@@ -178,7 +178,7 @@ export class SyncPage implements OnInit {
   }
 
   private async loadTablePrice() {
-    this.step = 'Sincronizando tabela de preço';
+    this.step = 'Sincronizando tabelas de preço';
     try {
       await this.dbService.clear('sale_force_table_price').toPromise();
       const table = await this.tablePriceService.getAll(0).toPromise() as any;
