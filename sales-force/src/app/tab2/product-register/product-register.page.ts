@@ -24,6 +24,7 @@ export class ProductRegisterPage implements OnInit {
 
   public _items = [] as any[];
   public items = [] as any[];
+  public itemsProducts = [] as any[];
   public productFilter = '';
 
   public _customers = [] as Customer[];
@@ -58,6 +59,8 @@ export class ProductRegisterPage implements OnInit {
 
   public isSended = false;
 
+  public itemType = 'kit';
+
   constructor(
     private platform: Platform,
     private activatedRoute: ActivatedRoute,
@@ -73,6 +76,10 @@ export class ProductRegisterPage implements OnInit {
 
   ngOnInit() {
     this.isIos = this.platform.is('ios');
+    var type = localStorage.getItem('itemType');
+    if(type){
+      this.itemType = type;
+    }
     this.form = this.formBuilder.group({
       id: [],
       customer: [null, Validators.required],
@@ -117,6 +124,7 @@ export class ProductRegisterPage implements OnInit {
               this.form.get('paymentTermSelected')?.patchValue(item);
             }
           }
+
           if (!this.paymentTermSelectedList) {
             this.paymentTermSelectedList = [];
           }
@@ -342,20 +350,40 @@ export class ProductRegisterPage implements OnInit {
         form.id = uuidv4();
       }
       let totalKit = 0;
-      if (form?.name?.items?.length) {
-        form?.name?.items.forEach((i: any) => {
-          const productTablePrice = this.tablePriceProduct.find(ptp => ptp.product?.id === i.product?.id);
-          if (productTablePrice) {
-            i.price = productTablePrice.price;
-            totalKit += (productTablePrice.price * i.quantity);
+      if(this.itemType === 'kit'){
+          form?.name?.items.forEach((i: any) => {
+            const productTablePrice = this.tablePriceProduct.find(ptp => ptp.product?.id === i.product?.id);
+            if (productTablePrice && productTablePrice.price) {
+              i.price = productTablePrice.price;
+              totalKit += (productTablePrice.price * i.quantity);
+            } else {
+              alert(`O produto ${i.product.name} não possui preço configurado na tabela de preço selecionada!`);
+              i.price = 0;
+              return;
+            }
+          })
+          form.type = 'PRODUCT_KIT';
+          //O valor unitário do Kit é o valor total do produto da tabela de preço * a quantidade que tem do produto no KIT
+          form.price = totalKit;
+      } else {
+        if(form?.name){
+          const productTablePrice = this.tablePriceProduct.find(ptp => ptp.product?.id === form?.name.id);
+          if (productTablePrice && productTablePrice.price) {
+            form.price = productTablePrice.price;
           } else {
-            alert(`O produto ${i.product.name} não possui preço configurado na tabela de preço selecionada!`);
-            i.price = 0;
+            alert(`O produto ${form?.name.name} não possui preço configurado na tabela de preço selecionada!`);
+            form.price = 0;
+            return;
           }
-        })
+		  form.type = 'PRODUCT';
+        }
+            
       }
-      form.price = totalKit;
+      
       this.selectedItems.push(form);
+
+      console.log(this.selectedItems);
+
       this.itemForm.reset();
     } else {
       this.form.markAllAsTouched();
@@ -378,32 +406,46 @@ export class ProductRegisterPage implements OnInit {
   }
 
   public async showItens() {
-    const _items = await this.dbService.getAll('sale_force_product_kit').toPromise() as any[];
+    let _items = [];
     this._items = [];
-    _items.filter(itm => {
-      let exists = true;
-      if (!itm.items?.length) {
-        exists = false;
-      }
-      itm.items.forEach((i: any) => {
-        const productTablePrice = this.tablePriceProduct.find(ptp => ptp.product?.id === i.product?.id);
-        if (!productTablePrice) {
+    if(this.itemType === 'kit'){
+      _items = await this.dbService.getAll('sale_force_product_kit').toPromise() as any[];
+      _items.filter(itm => {
+        let exists = true;
+        if (!itm.items?.length) {
           exists = false;
         }
+        itm.items.forEach((i: any) => {
+          const productTablePrice = this.tablePriceProduct.find(ptp => ptp.product?.id === i.product?.id);
+          if (!productTablePrice) {
+            exists = false;
+          }
+        });
+        if (exists) {
+          this._items.push(itm);
+        }
+      })
+    } else {
+      const tablePrice = this.form.get('tablePrice')?.value;
+      console.log(tablePrice);
+
+      const tablePriceItens = await this.dbService.getAllByIndex('sale_force_table_price_product', 'tableId', IDBKeyRange.only(tablePrice.id)).toPromise() as any[];
+      console.log(tablePriceItens);
+      tablePriceItens.forEach((tablePriceItem: any) => {
+       this._items.push(tablePriceItem.product);
       });
-      if (exists) {
-        this._items.push(itm);
-      }
-    })
-    this.items = [];
-    for (let i = 0; i < 100; i++) {
-      if (this._items[i]) {
-        this.items.push(JSON.parse(JSON.stringify(this._items[i])));
-        try {
-          this.items[i].product = this._items[i].items.map((i: any) => i.product.name).join(', ');
-        } catch (err) { }
-      }
+      console.log(this._items);
     }
+    this.items = [];
+      for (let i = 0; i < 100; i++) {
+        if (this._items[i]) {
+          this.items.push(JSON.parse(JSON.stringify(this._items[i])));
+          try {
+            this.items[i].product = this._items[i].items.map((i: any) => i.product.name).join(', ');
+          } catch (err) { }
+        }
+      }
+    
     this.productPage = 1;
     this.modalItem.present();
   }

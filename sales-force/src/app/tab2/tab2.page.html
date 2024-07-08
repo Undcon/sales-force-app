@@ -17,6 +17,9 @@
           <h5 *ngIf="item?.customer?.name">Cliente: {{item?.customer?.name}}</h5>
           <h5 *ngIf="!item?.customer?.name">Esboço: {{item?.createdAt}}</h5>
           <h5 *ngIf="item?.type === 'order'">Erro ao integrar pedido</h5>
+          <p *ngIf="item?.customer?.cpfCnpj" style="font-size: 12px;" class="text-muted">{{item?.customer?.cpfCnpj | mask:
+            (item?.customer?.cpfCnpj.length > 11 ? '00.000.000/0000-00' : '000.000.000-00')}}</p>
+          <p style="font-size: 12px;" class="text-muted">{{item?.customer?.city?.name}} - {{item?.customer?.state?.name}}</p>
           <p style="font-size: 12px;" class="text-muted mb-0 pb-0">Tabela de preço: {{item?.tablePrice?.name || 'Não informado'}}
           </p>
           <p style="font-size: 12px;" class="text-muted mt-0 pt-0">Qtd. peças: {{item.productsQty ||

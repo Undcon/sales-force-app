@@ -13,7 +13,8 @@
     </div>
     <ion-segment mode="ios" [value]="segment" (ionChange)="onSegmentChage($event)">
       <ion-segment-button value="product">Pedido</ion-segment-button>
-      <ion-segment-button [disabled]="!form.get('tablePrice')?.value" value="items">Kits do pedido</ion-segment-button>
+      <ion-segment-button [disabled]="!form.get('tablePrice')?.value" *ngIf="itemType === 'kit'" value="items">Kits do pedido</ion-segment-button>
+      <ion-segment-button [disabled]="!form.get('tablePrice')?.value" *ngIf="itemType === 'product'" value="itemsProducts">Produtos do pedido</ion-segment-button>
       <ion-segment-button [disabled]="!selectedItems.length" value="total">Totais</ion-segment-button>
     </ion-segment>
     <span (click)="customerModal.present()" *ngIf="segment === 'product'" class="p-float-label mt-3">
@@ -41,26 +42,71 @@
     </span>
   </form>
   <div class="container mt-3">
-    <form [formGroup]="itemForm">
-      <span *ngIf="segment === 'items'" class="p-float-label mt-3">
+    <form [formGroup]="itemForm" *ngIf="segment === 'items'">
+      <span class="p-float-label mt-3">
         <input [disabled]="isSended" readonly [value]="itemForm.get('name')?.value?.name" (click)="showItens()" id="float-input" class="w-100"
           type="text" pInputText>
         <label for="float-input">Selecione o kit</label>
       </span>
-      <span *ngIf="segment === 'items'" class="p-float-label mt-3">
+      <span class="p-float-label mt-3">
         <input formControlName="quantity" id="float-input" class="w-100" type="number" pInputText>
         <label for="float-input">Digite a quantidade</label>
       </span>
-      <div (click)="addItem()" class="text-right" *ngIf="segment === 'items'">
+      <div (click)="addItem()" class="text-right">
         <ion-button [disabled]="isSended">{{itemForm.get('id')?.value ? 'Atualizar item' : 'Vincular item'}}</ion-button>
       </div>
       <br>
-      <h2 *ngIf="segment === 'items'">Kits no pedido</h2>
-      <div class="text-center text-muted mt-5" *ngIf="segment === 'items' && !selectedItems?.length">
+      <h2 *ngIf="itemType === 'kit'">Kits no pedido</h2>
+      <div class="text-center text-muted mt-5" *ngIf="!selectedItems?.length">
         <ion-icon name="file-tray-outline" style="font-size: 100px;"></ion-icon>
         <h3>Nenhum item vinculado</h3>
       </div>
-      <div class="text-center text-muted mt-3 pl-0 ml-0" *ngIf="segment === 'items' && selectedItems?.length">
+      <h2 *ngIf="itemType === 'product'">Produtos no pedido</h2>
+      <div class="text-center text-muted mt-5" *ngIf="!selectedItems?.length">
+        <ion-icon name="file-tray-outline" style="font-size: 100px;"></ion-icon>
+        <h3>Nenhum item vinculado</h3>
+      </div>
+      <div class="text-center text-muted mt-3 pl-0 ml-0" *ngIf="selectedItems?.length">
+        <ion-list mode="ios">
+          <ion-item-sliding *ngFor="let item of selectedItems">
+            <ion-item class="no-padding">
+              <ion-label class="ion-text-wrap">
+                <h4>{{item?.name?.name}}</h4>
+                <p>{{item?.quantity}} quantidades</p>
+              </ion-label>
+              <ion-button [disabled]="isSended" (click)="presentActionSheet(item.id)" color="dark" fill="clear" slot="end">
+                <ion-icon name="ellipsis-vertical"></ion-icon>
+              </ion-button>
+            </ion-item>
+            <ion-item-options>
+              <ion-item-option [disabled]="isSended" (click)="edit(item.id)">Editar</ion-item-option>
+              <ion-item-option [disabled]="isSended" (click)="removeItem(item.id)" color="danger">Remover</ion-item-option>
+            </ion-item-options>
+          </ion-item-sliding>
+        </ion-list>
+      </div>
+    </form>
+    <form [formGroup]="itemForm" *ngIf="segment === 'itemsProducts'">
+      <span class="p-float-label mt-3">
+        <input [disabled]="isSended" readonly [value]="itemForm.get('name')?.value?.name" (click)="showItens()" id="float-input" class="w-100"
+          type="text" pInputText>
+        <label for="float-input">Selecione o Produto</label>
+      </span>
+      <span class="p-float-label mt-3">
+        <input formControlName="quantity" id="float-input" class="w-100" type="number" pInputText>
+        <label for="float-input">Digite a quantidade</label>
+      </span>
+      <div (click)="addItem()" class="text-right">
+        <ion-button [disabled]="isSended">{{itemForm.get('id')?.value ? 'Atualizar item' : 'Vincular item'}}</ion-button>
+      </div>
+      <br>
+      <h2 *ngIf="itemType === 'kit'">Kits no pedido</h2>
+      <h2 *ngIf="itemType === 'product'">Produtos no pedido</h2>
+      <div class="text-center text-muted mt-5" *ngIf="!selectedItems?.length">
+        <ion-icon name="file-tray-outline" style="font-size: 100px;"></ion-icon>
+        <h3>Nenhum item vinculado</h3>
+      </div>
+      <div class="text-center text-muted mt-3 pl-0 ml-0" *ngIf="selectedItems?.length">
         <ion-list mode="ios">
           <ion-item-sliding *ngFor="let item of selectedItems">
             <ion-item class="no-padding">
@@ -83,6 +129,7 @@
     <div class="text-left text-muted mt-3 pl-0 ml-0" *ngIf="segment === 'total' && selectedItems?.length">
       <table class="mt-4 table">
         <thead>
+          
           <th>Kit</th>
           <th noWrap class="text-center">Qtd.</th>
           <th noWrap class="text-right" style="text-align: right;">Total</th>
@@ -192,7 +239,7 @@
           <ion-label class="ion-text-wrap" >
             <h2>{{item.name}}</h2>
             <p *ngIf="item.cpfCnpj" style="font-size: 12px;" class="text-muted">{{item.cpfCnpj | mask:
-              (item.cpfCnpj.length > 11 ? '00.000.000/0000-00' : '000.000.000-00')}}</p>
+              (item.cpfCnpj.length > 11 ? '00.000.000/0000-00' : '000.000.000-00')}} - {{item.city?.name}} - {{item.state?.name}}</p>
             <p *ngIf="!item.cpfCnpj" style="font-size: 12px;" class="text-muted">CPF ou CNPJ não informado</p>
           </ion-label>
           <ion-button slot="end" fill="clear">Selecionar</ion-button>
@@ -294,8 +341,12 @@
   <ng-template>
     <ion-header [collapse]="isIos ? 'condense' : ''" mode="ios">
       <ion-toolbar mode="ios">
-        <ion-label>
+        <ion-label *ngIf="itemType === 'kit'">
           <h2 class="font-weight-bold mb-0 pb-0 pl-1">Kit de produtos</h2>
+        </ion-label>
+
+        <ion-label *ngIf="itemType === 'product'">
+          <h2 class="font-weight-bold mb-0 pb-0 pl-1">Produtos</h2>
         </ion-label>
         <ion-button (click)="modalItem.dismiss()" fill="clear" slot="end">
           Cancelar
@@ -309,7 +360,7 @@
         <ion-item (click)="onSelectItem(item, modalItem)" *ngFor="let item of items">
           <ion-label class="ion-text-wrap">
             <h2>{{item?.name}}</h2>
-            <p class="text-muted" style="font-size: 12px;">Itens: {{item?.product || 'Não informado'}}</p>
+            <p *ngIf="itemType === 'kit'" class="text-muted" style="font-size: 12px;">Itens: {{item?.product || 'Não informado'}}</p>
           </ion-label>
           <ion-button slot="end" fill="clear">Selecionar</ion-button>
         </ion-item>

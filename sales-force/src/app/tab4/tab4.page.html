@@ -5,7 +5,7 @@
 </ion-header>
 
 <ion-content>
-  <ion-item lines="none" class="mt-3">
+  <ion-item lines="" class="mt-3">
     <ion-icon slot="start" name="person-circle-outline"></ion-icon>
     <ion-label>
       <h2>{{user?.name || 'Usuário sem nome'}}</h2>
@@ -13,4 +13,21 @@
     </ion-label>
     <ion-button slot="end" fill="clear" size="small" (click)="logoff()">Sair</ion-button>
   </ion-item>
+
+  <ion-item lines="none" class="mt-2">
+    <ion-segment [value]="itemType" (ionChange)="onSegmentChange($event)" mode="ios" class="mt-2">
+      <ion-segment-button value="kit">Utilizar Kits</ion-segment-button>
+      <ion-segment-button value="product">Utilizar Produtos</ion-segment-button>
+    </ion-segment>
+    
+  </ion-item>
+  <ion-item lines="" class="mt-2">
+    <div *ngIf="itemType == 'kit'">
+      <p>O cadastro de pedidos será realizado adicionando kits de produtos</p>
+    </div>
+    <div  *ngIf="itemType == 'product'">
+        <p>O cadastro de pedidos será realizado adicionando produtos</p>
+    </div>
+  </ion-item>
+  
 </ion-content>

@@ -36,10 +36,17 @@ export class OrderService {
   public addItem(item: any, salesOrder: any) {
     const payload = JSON.parse(JSON.stringify(item));
     delete payload.id;
-    payload.type = 'PRODUCT_KIT';
-    payload.productKit = {
-      id: payload.name.id
-    };
+    //payload.type = 'PRODUCT_KIT';
+    if(payload.type === 'PRODUCT_KIT'){
+      payload.productKit = {
+        id: payload.name.id
+      };
+    } else {
+      payload.product = {
+        id: payload.name.id
+      };
+    }
+    
     payload.salesOrder = {
       id: salesOrder
     };

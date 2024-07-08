@@ -11,6 +11,8 @@ export class Tab4Page implements OnInit {
 
   public user = null as any;
 
+  public itemType = 'kit';
+
   constructor(
     private router: Router,
     private dbService: NgxIndexedDBService
@@ -20,6 +22,10 @@ export class Tab4Page implements OnInit {
     this.dbService.getAll('sale_force_session').subscribe(session => {
       this.user = session[0];
     });
+    var type = localStorage.getItem('itemType');
+    if(type){
+      this.itemType = type;
+    }
   }
 
   async logoff() {
@@ -35,6 +41,11 @@ export class Tab4Page implements OnInit {
     this.dbService.clear('sale_force_product').subscribe();
     this.dbService.clear('sale_force_product_kit').subscribe();
     this.dbService.clear('sale_force_table_time_product').subscribe();
+  }
+
+  public onSegmentChange(event: any) {
+    this.itemType = event.detail.value;
+    localStorage.setItem('itemType', this.itemType);
   }
 
 }
