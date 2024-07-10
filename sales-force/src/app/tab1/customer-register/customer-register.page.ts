@@ -65,7 +65,8 @@ export class CustomerRegisterPage implements OnInit {
       cep: [null, Validators.required],
       rg: [null, Validators.required],
       email: [null, Validators.required],
-      motherName: [null]
+      motherName: [null],
+      sync: [null],
     });
     this.form.get('cpfCnpj')?.valueChanges.subscribe(cpfCnpj => {
       if (cpfCnpj && cpfCnpj.replace('_', '').replace('_', '').replace('.', '').replace('.', '').replace('-', '').length > 11) {
@@ -320,6 +321,10 @@ export class CustomerRegisterPage implements OnInit {
     } else {
       this.form.markAllAsTouched();
     }
+  }
+
+  public isSync() {
+    return !isNaN(this.form.get('id')?.value);
   }
 
 }

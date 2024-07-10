@@ -11,7 +11,7 @@
       <ion-button size="small" (click)="save()" color="light">Tentar novamente</ion-button>
     </div>
     <form class="mt-3" [formGroup]="form">
-      <h4 class="mb-3 ">Dados gerais</h4>
+      <h4 class="mb-3 ">Dados gerais <span *ngIf="isSync()"> - Cód.: {{form.get('id')?.value}}</span></h4>
       <span class="p-float-label">
         <input formControlName="name" id="float-input" class="w-100" type="text" pInputText>
         <label class="required" for="float-input">Digite o nome</label>

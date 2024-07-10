@@ -16,14 +16,17 @@
         <ion-label class="ion-text-wrap" [routerLink]="['/', 'features', 'tab1', 'customer-register', customer.id]">
           <h2>{{customer.name}}</h2>
           <p *ngIf="customer.cpfCnpj" style="font-size: 12px;" class="text-muted">{{customer.cpfCnpj | mask:
-            (customer.cpfCnpj.length > 11 ? '00.000.000/0000-00' : '000.000.000-00')}} - {{customer.city? customer.city.name : ""}} - {{customer.state ? customer.state.name : ""}}
+            (customer.cpfCnpj.length > 11 ? '00.000.000/0000-00' : '000.000.000-00')}}
           </p>
           <p *ngIf="!customer.cpfCnpj" style="font-size: 12px;" class="text-muted">CPF ou CNPJ não informado</p>
+          <p *ngIf="customer?.city" style="font-size: 12px;" class="text-muted">{{customer?.city?.name}} - {{customer?.state?.name}}</p>
+          <p *ngIf="!customer?.city" style="font-size: 12px;" class="text-muted">Cidade não informada</p>
         </ion-label>
         <ion-badge [routerLink]="['/', 'features', 'tab1', 'customer-register', customer.id]" *ngIf="!customer.sync"
           color="primary">Sincronizando</ion-badge>
         <ion-badge [routerLink]="['/', 'features', 'tab1', 'customer-register', customer.id]" *ngIf="customer.error"
           color="danger">Erro</ion-badge>
+        <p *ngIf="customer?.id && customer.sync === true && !customer.error" style="font-size: 12px; color: black; padding-left: 3px;">Cód.: {{customer?.id}}</p>  
         <ion-button (click)="presentActionSheet(customer.id)" color="dark" fill="clear" slot="end">
           <ion-icon name="ellipsis-vertical"></ion-icon>
         </ion-button>

@@ -61,10 +61,6 @@
       </div>
       <br>
       <h2 *ngIf="itemType === 'kit'">Kits no pedido</h2>
-      <div class="text-center text-muted mt-5" *ngIf="!selectedItems?.length">
-        <ion-icon name="file-tray-outline" style="font-size: 100px;"></ion-icon>
-        <h3>Nenhum item vinculado</h3>
-      </div>
       <h2 *ngIf="itemType === 'product'">Produtos no pedido</h2>
       <div class="text-center text-muted mt-5" *ngIf="!selectedItems?.length">
         <ion-icon name="file-tray-outline" style="font-size: 100px;"></ion-icon>
@@ -246,8 +242,10 @@
           <ion-label class="ion-text-wrap" >
             <h2>{{item.name}}</h2>
             <p *ngIf="item.cpfCnpj" style="font-size: 12px;" class="text-muted">{{item.cpfCnpj | mask:
-              (item.cpfCnpj.length > 11 ? '00.000.000/0000-00' : '000.000.000-00')}} - {{item.city? item.city.name : ""}} - {{item.state ? item.state.name : ""}}</p>
+              (item.cpfCnpj.length > 11 ? '00.000.000/0000-00' : '000.000.000-00')}}</p>
             <p *ngIf="!item.cpfCnpj" style="font-size: 12px;" class="text-muted">CPF ou CNPJ não informado</p>
+            <p *ngIf="item?.city" style="font-size: 12px;" class="text-muted">{{item?.city?.name}} - {{item?.state?.name}}</p>
+            <p *ngIf="!item?.city" style="font-size: 12px;" class="text-muted">Cidade não informada</p>
           </ion-label>
           <ion-button slot="end" fill="clear">Selecionar</ion-button>
         </ion-item>

@@ -54,6 +54,7 @@ export class Tab1Page implements OnInit {
   ionViewWillEnter() {
     this.dbService.getAll('sale_force_customer').subscribe((customers: any[]) => {
       this._customers = customers.sort((a: any, b: any) => {
+        a.sync = !isNaN(a.id);
         if (a.error) {
           return -1;
         } else if (a.sync == 0) {
