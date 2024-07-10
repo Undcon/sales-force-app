@@ -17,6 +17,10 @@
       <ion-segment-button [disabled]="!form.get('tablePrice')?.value" *ngIf="itemType === 'product'" value="itemsProducts">Produtos do pedido</ion-segment-button>
       <ion-segment-button [disabled]="!selectedItems.length" value="total">Totais</ion-segment-button>
     </ion-segment>
+    <span *ngIf="segment === 'product' && isSended" class="p-float-label mt-3">
+      <input readonly [disabled]="isSended" [value]="form.get('id')?.value" id="float-input" class="w-100" type="text" pInputText>
+      <label class="required" for="float-input">N° do pedido</label>
+    </span>
     <span (click)="customerModal.present()" *ngIf="segment === 'product'" class="p-float-label mt-3">
       <input readonly [disabled]="isSended" [value]="form.get('customer')?.value?.name" id="float-input" class="w-100" type="text" pInputText>
       <label class="required" for="float-input">Selecione o cliente</label>
@@ -72,9 +76,10 @@
             <ion-item class="no-padding">
               <ion-label class="ion-text-wrap">
                 <h4>{{item?.name?.name}}</h4>
-                <p>{{item?.quantity}} quantidades</p>
+                <p *ngIf="item?.type === 'PRODUCT_KIT'">{{item?.quantity}} quantidades</p>
+                <p *ngIf="item?.type === 'PRODUCT'">{{item?.quantity}} {{item?.name?.unit}}</p>
               </ion-label>
-              <ion-button [disabled]="isSended" (click)="presentActionSheet(item.id)" color="dark" fill="clear" slot="end">
+              <ion-button *ngIf="!isSended" (click)="presentActionSheet(item.id)" color="dark" fill="clear" slot="end">
                 <ion-icon name="ellipsis-vertical"></ion-icon>
               </ion-button>
             </ion-item>
@@ -112,7 +117,8 @@
             <ion-item class="no-padding">
               <ion-label class="ion-text-wrap">
                 <h4>{{item?.name?.name}}</h4>
-                <p>{{item?.quantity}} quantidades</p>
+                <p *ngIf="item?.type === 'PRODUCT_KIT'">{{item?.quantity}} quantidades</p>
+                <p *ngIf="item?.type === 'PRODUCT'">{{item?.quantity}} {{item?.name?.unit}}</p>
               </ion-label>
               <ion-button [disabled]="isSended" (click)="presentActionSheet(item.id)" color="dark" fill="clear" slot="end">
                 <ion-icon name="ellipsis-vertical"></ion-icon>
@@ -130,7 +136,8 @@
       <table class="mt-4 table">
         <thead>
           
-          <th>Kit</th>
+          <th *ngIf="itemType === 'kit'">Kit</th>
+          <th *ngIf="itemType === 'product'">Produto</th>
           <th noWrap class="text-center">Qtd.</th>
           <th noWrap class="text-right" style="text-align: right;">Total</th>
           <th style="width: 30px;"></th>
@@ -140,7 +147,7 @@
             <td>{{item?.name?.name}}</td>
             <td noWrap class="text-center">{{item?.quantity}}</td>
             <td noWrap class="text-right" style="text-align: right;">{{this.parseCurrency(totalKit(item))}}</td>
-            <td style="padding-right: 0px!important; padding-left: 5px !important;"><ion-icon size="larger"
+            <td *ngIf="item?.type === 'PRODUCT_KIT'" style="padding-right: 0px!important; padding-left: 5px !important;"><ion-icon size="larger"
                 name="chevron-down" color="primary"></ion-icon></td>
           </tr>
         </tbody>
@@ -239,7 +246,7 @@
           <ion-label class="ion-text-wrap" >
             <h2>{{item.name}}</h2>
             <p *ngIf="item.cpfCnpj" style="font-size: 12px;" class="text-muted">{{item.cpfCnpj | mask:
-              (item.cpfCnpj.length > 11 ? '00.000.000/0000-00' : '000.000.000-00')}} - {{item.city?.name}} - {{item.state?.name}}</p>
+              (item.cpfCnpj.length > 11 ? '00.000.000/0000-00' : '000.000.000-00')}} - {{item.city? item.city.name : ""}} - {{item.state ? item.state.name : ""}}</p>
             <p *ngIf="!item.cpfCnpj" style="font-size: 12px;" class="text-muted">CPF ou CNPJ não informado</p>
           </ion-label>
           <ion-button slot="end" fill="clear">Selecionar</ion-button>

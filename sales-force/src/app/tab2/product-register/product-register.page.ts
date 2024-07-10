@@ -208,17 +208,17 @@ export class ProductRegisterPage implements OnInit {
 
   async presentActionSheet(id: any) {
     const actionSheet = await this.actionSheetCtrl.create({
-      header: 'Opções do kit',
+      header: 'Opções do item',
       mode: 'ios',
       buttons: [
         {
-          text: 'Editar kit',
+          text: 'Editar item',
           handler: () => {
             this.edit(id);
           },
         },
         {
-          text: 'Remover kit',
+          text: 'Remover item',
           role: 'destructive',
           handler: () => {
             this.removeItem(id);
@@ -260,7 +260,7 @@ export class ProductRegisterPage implements OnInit {
       } else if (this.isNew) {
         const loading = await this.loadingCtrl.create({
           message: 'Criando o rascunho...',
-          duration: 3000,
+          duration: 2000,
         });
         await loading.present();
         await this.navController.back();
@@ -274,7 +274,7 @@ export class ProductRegisterPage implements OnInit {
 
       const toast = await this.toastController.create({
         message: 'Salvo como rascunho',
-        duration: 2500,
+        duration: 2000,
         color: 'primary',
         position: 'top',
         buttons: ['OK']
@@ -375,14 +375,12 @@ export class ProductRegisterPage implements OnInit {
             form.price = 0;
             return;
           }
-		  form.type = 'PRODUCT';
+		      form.type = 'PRODUCT';
         }
             
       }
       
       this.selectedItems.push(form);
-
-      console.log(this.selectedItems);
 
       this.itemForm.reset();
     } else {
@@ -509,7 +507,9 @@ export class ProductRegisterPage implements OnInit {
 
   public showItensKit(index: number) {
     this.itensKitIndex = index;
-    this.kitDetailModal.present()
+    if(this.itemType === 'kit'){
+      this.kitDetailModal.present();
+    }
   }
 
   public total() {

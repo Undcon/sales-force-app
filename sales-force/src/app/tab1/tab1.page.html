@@ -16,7 +16,7 @@
         <ion-label class="ion-text-wrap" [routerLink]="['/', 'features', 'tab1', 'customer-register', customer.id]">
           <h2>{{customer.name}}</h2>
           <p *ngIf="customer.cpfCnpj" style="font-size: 12px;" class="text-muted">{{customer.cpfCnpj | mask:
-            (customer.cpfCnpj.length > 11 ? '00.000.000/0000-00' : '000.000.000-00')}} - {{customer.city?.name}} - {{customer.state?.name}}
+            (customer.cpfCnpj.length > 11 ? '00.000.000/0000-00' : '000.000.000-00')}} - {{customer.city? customer.city.name : ""}} - {{customer.state ? customer.state.name : ""}}
           </p>
           <p *ngIf="!customer.cpfCnpj" style="font-size: 12px;" class="text-muted">CPF ou CNPJ não informado</p>
         </ion-label>
