@@ -72,8 +72,8 @@
             <ion-item class="no-padding">
               <ion-label class="ion-text-wrap">
                 <h4>{{item?.name?.name}}</h4>
-                <p *ngIf="item?.type === 'PRODUCT_KIT'">{{item?.quantity}} quantidades</p>
-                <p *ngIf="item?.type === 'PRODUCT'">{{item?.quantity}} {{item?.name?.unit}}</p>
+                <p *ngIf="itemType === 'kit'">{{item?.quantity}} quantidades</p>
+                <p *ngIf="itemType === 'product'">{{item?.quantity}} {{item?.name?.unit || 'quantidades'}}</p>
               </ion-label>
               <ion-button *ngIf="!isSended" (click)="presentActionSheet(item.id)" color="dark" fill="clear" slot="end">
                 <ion-icon name="ellipsis-vertical"></ion-icon>
@@ -113,8 +113,8 @@
             <ion-item class="no-padding">
               <ion-label class="ion-text-wrap">
                 <h4>{{item?.name?.name}}</h4>
-                <p *ngIf="item?.type === 'PRODUCT_KIT'">{{item?.quantity}} quantidades</p>
-                <p *ngIf="item?.type === 'PRODUCT'">{{item?.quantity}} {{item?.name?.unit}}</p>
+                <p *ngIf="itemType === 'kit'">{{item?.quantity}} quantidades</p>
+                <p *ngIf="itemType === 'product'">{{item?.quantity}} {{item?.name?.unit}}</p>
               </ion-label>
               <ion-button [disabled]="isSended" (click)="presentActionSheet(item.id)" color="dark" fill="clear" slot="end">
                 <ion-icon name="ellipsis-vertical"></ion-icon>
@@ -156,7 +156,7 @@
         </thead>
         <tbody>
           <tr>
-            <td>Total dos kits</td>
+            <td>Total dos itens</td>
             <td class="text-right" style="text-align: right;">{{this.parseCurrency(totalKits())}}
             </td>
             <td style="width: 30px;"></td>
