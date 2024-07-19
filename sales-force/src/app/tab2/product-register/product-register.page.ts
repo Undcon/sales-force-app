@@ -504,7 +504,7 @@ export class ProductRegisterPage implements OnInit {
 
   public showItensKit(index: number) {
     this.itensKitIndex = index;
-    if(this.itemType === 'kit'){
+    if(this.selectedItems[index].type === 'PRODUCT_KIT'){
       this.kitDetailModal.present();
     }
   }

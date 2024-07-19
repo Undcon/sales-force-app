@@ -13,8 +13,7 @@
     </div>
     <ion-segment mode="ios" [value]="segment" (ionChange)="onSegmentChage($event)">
       <ion-segment-button value="product">Pedido</ion-segment-button>
-      <ion-segment-button [disabled]="!form.get('tablePrice')?.value" *ngIf="itemType === 'kit'" value="items" class="ion-text-wrap">Kits do pedido</ion-segment-button>
-      <ion-segment-button [disabled]="!form.get('tablePrice')?.value" *ngIf="itemType === 'product'" value="itemsProducts" class="ion-text-wrap">Produtos do pedido</ion-segment-button>
+      <ion-segment-button [disabled]="!form.get('tablePrice')?.value" value="items" class="ion-text-wrap">Itens do pedido</ion-segment-button>
       <ion-segment-button [disabled]="!selectedItems.length" value="total">Totais</ion-segment-button>
     </ion-segment>
     <span *ngIf="segment === 'product' && isSended" class="p-float-label mt-3">
@@ -46,7 +45,7 @@
     </span>
   </form>
   <div class="container mt-3">
-    <form [formGroup]="itemForm" *ngIf="segment === 'items'">
+    <form [formGroup]="itemForm" *ngIf="segment === 'items' && itemType === 'kit'">
       <span class="p-float-label mt-3">
         <input [disabled]="isSended" readonly [value]="itemForm.get('name')?.value?.name" (click)="showItens()" id="float-input" class="w-100"
           type="text" pInputText>
@@ -86,7 +85,7 @@
         </ion-list>
       </div>
     </form>
-    <form [formGroup]="itemForm" *ngIf="segment === 'itemsProducts'">
+    <form [formGroup]="itemForm" *ngIf="segment === 'items' && itemType === 'product'">
       <span class="p-float-label mt-3">
         <input [disabled]="isSended" readonly [value]="itemForm.get('name')?.value?.name" (click)="showItens()" id="float-input" class="w-100"
           type="text" pInputText>
@@ -129,10 +128,8 @@
     <div class="text-left text-muted mt-3 pl-0 ml-0" *ngIf="segment === 'total' && selectedItems?.length">
       <table class="mt-4 table">
         <thead>
-          
-          <th *ngIf="itemType === 'kit'">Kit</th>
-          <th *ngIf="itemType === 'product'">Produto</th>
-          <th noWrap class="text-center">Qtd.</th>
+          <th>Item</th>
+          <th noWrap class="text-center">Qtde.</th>
           <th noWrap class="text-right" style="text-align: right;">Total</th>
           <th style="width: 30px;"></th>
         </thead>
