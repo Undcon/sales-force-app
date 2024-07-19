@@ -82,14 +82,23 @@ export class Tab2Page implements OnInit {
         for (let i = 0; i < 100; i++) {
           if (this._product[i]) {
             this._product[i].total = this.getTotalOrder(this._product[i]);
+            this._product[i].unit = '';
             let productsQty = 0;
-            this._product[i]?.items?.forEach((i: any) => {
-              let totalProducts = 0;
-              const itens = productsKit.find((p: any) => p.id === i?.name.id) as any;
-              itens?.items?.forEach((i2: any) => {
-                totalProducts += i2.quantity;
-              });
-              productsQty += (totalProducts * i.quantity);
+            this._product[i]?.items?.forEach((item: any) => {
+              // Soma a quantidade de peças de cada item do pedido
+              if(item.type === 'PRODUCT'){
+                productsQty += item.quantity;
+                this._product[i].unit = item?.name?.unit;
+              } else {
+                //Calcula a quantidade de peças de cada Kit
+                let totalProducts = 0;
+                const itens = productsKit.find((p: any) => p.id === item?.name.id) as any;
+                itens?.items?.forEach((i2: any) => {
+                  totalProducts += i2.quantity;
+                });
+                productsQty += (totalProducts * item.quantity);
+              }
+              this._product[i].itemType = item.type;
             });
             this._product[i].productsQty = productsQty;
             this.product.push(this._product[i]);

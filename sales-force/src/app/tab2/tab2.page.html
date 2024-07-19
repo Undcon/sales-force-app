@@ -23,8 +23,10 @@
           <p *ngIf="!item?.customer?.city" style="font-size: 12px;" class="text-muted">Cidade não informada</p>
           <p style="font-size: 12px;" class="text-muted mb-0 pb-0">Tabela de preço: {{item?.tablePrice?.name || 'Não informado'}}
           </p>
-          <p style="font-size: 12px;" class="text-muted mt-0 pt-0">Qtd. peças: {{item.productsQty ||
+          <p style="font-size: 12px;" class="text-muted mt-0 pt-0" *ngIf="item?.itemType === 'PRODUCT_KIT'">Qtde.: {{item.productsQty + ' Pçs' ||
             'Não informado'}}</p>
+          <p style="font-size: 12px;" class="text-muted mt-0 pt-0" *ngIf="item?.itemType === 'PRODUCT'">Qtde.: {{item.productsQty ||
+              'Não informado'}} {{ item?.unit || ''}}</p>  
         </ion-label>
         <ion-label [routerLink]="['/', 'features', 'tab2', 'product-register', item.id]"
           slot="end">

@@ -73,7 +73,7 @@ export class SyncPage implements OnInit {
       await this.syncTableTimeProduct();
       await this.syncTablePriceProduct();
       await this.loadKit();
-      await this.loadProducts();
+      await this.loadOrders();
     } catch (err: any) {
       alert(err.message);
     }
@@ -91,7 +91,7 @@ export class SyncPage implements OnInit {
     }
   }
 
-  private async loadProducts() {
+  private async loadOrders() {
     this.step = 'Sincronizando pedidos';
     const orders = await this.orderService.getAll().toPromise() as any;
     for (const order of orders.content) {
@@ -102,21 +102,37 @@ export class SyncPage implements OnInit {
           order.tablePrice = order.tableOfPrice;
           order.tablePaymentTerm = order.tableOfPaymentTerm;
           order.observation = order.observations;
-          const kits = await this.dbService.getAll<any>('sale_force_table_price_product').toPromise() as any[];
-          const products = kits.filter(kit => kit.id === order.tableOfPaymentTerm.id);
+          const tablePriceItems = await this.dbService.getAllByIndex('sale_force_table_price_product', 'tableId', IDBKeyRange.only(order.tableOfPrice.id)).toPromise() as any[];
           try {
             const itens = await this.orderService.getAllItems(order.id).toPromise() as any;
             order.items = itens.content.map((c: any) => {
-              return {
-                id: c.id,
-                quantity: c.quantity || 1,
-                price: c.price,
-                name: {
-                  id: c.productKit.id,
-                  name: c.productKit.name,
-                  items: products
+              if(c.type === 'PRODUCT'){
+                return {
+                  id: c.id,
+                  quantity: c.quantity || 1,
+                  price: c.price,
+                  type: c.type,
+                  name: {
+                    id: c.product.id,
+                    name: c.product.name,
+                    unit: c.product.unit,
+                    items: []
+                  }
+                }
+              } else {
+                return {
+                  id: c.id,
+                  quantity: c.quantity || 1,
+                  price: c.price,
+                  type: c.type,
+                  name: {
+                    id: c.productKit.id,
+                    name: c.productKit.name,
+                    items: []
+                  }
                 }
               }
+              
             })
           } catch (err) { }
           if (item) {

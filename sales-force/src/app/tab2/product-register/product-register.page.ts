@@ -425,14 +425,11 @@ export class ProductRegisterPage implements OnInit {
       })
     } else {
       const tablePrice = this.form.get('tablePrice')?.value;
-      console.log(tablePrice);
 
       const tablePriceItens = await this.dbService.getAllByIndex('sale_force_table_price_product', 'tableId', IDBKeyRange.only(tablePrice.id)).toPromise() as any[];
-      console.log(tablePriceItens);
       tablePriceItens.forEach((tablePriceItem: any) => {
        this._items.push(tablePriceItem.product);
       });
-      console.log(this._items);
     }
     this.items = [];
       for (let i = 0; i < 100; i++) {
