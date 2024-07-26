@@ -144,7 +144,7 @@ export class Tab2Page implements OnInit {
               try {
                 const url = await this.orderService.generatePdf(id).toPromise() as any;
                 const fileTransfer: FileTransferObject = this.transfer.create();
-                const name = this.file.dataDirectory + `${new Date().getTime}.pdf`;
+                const name = this.file.dataDirectory + `Pedido - ${id}.pdf`;
                 if (this.platform.is('ios')) {
                   this.iab.create(url.url, '_system');
                 } else  {

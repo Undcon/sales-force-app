@@ -350,7 +350,14 @@ export class ProductRegisterPage implements OnInit {
         form.id = uuidv4();
       }
       let totalKit = 0;
+      //Verifica se o Produto já não está adicionado
+      const itemExists = this.selectedItems.find(s => s.name.id === form?.name.id);
+      if(itemExists){
+        alert(`O item selecionado já está adicionado no pedido!`);
+        return;
+      }
       if(this.itemType === 'kit'){
+        //Adiciona o Kit
           form?.name?.items.forEach((i: any) => {
             const productTablePrice = this.tablePriceProduct.find(ptp => ptp.product?.id === i.product?.id);
             if (productTablePrice && productTablePrice.price) {
@@ -367,6 +374,7 @@ export class ProductRegisterPage implements OnInit {
           form.price = totalKit;
       } else {
         if(form?.name){
+          //Adiciona o Produto
           const productTablePrice = this.tablePriceProduct.find(ptp => ptp.product?.id === form?.name.id);
           if (productTablePrice && productTablePrice.price) {
             form.price = productTablePrice.price;
