@@ -361,7 +361,7 @@
         <ion-item (click)="onSelectItem(item, modalItem)" *ngFor="let item of items">
           <ion-label class="ion-text-wrap">
             <h2>{{item?.name}}</h2>
-            <p *ngIf="itemType === 'kit'" class="text-muted" style="font-size: 12px;">Itens: {{item?.product || 'Não informado'}}</p>
+            <p *ngIf="itemType === 'kit'" class="text-muted" style="font-size: 12px;">Itens: {{item?.productw?.length || 'Não informado'}}</p>
           </ion-label>
           <ion-button slot="end" fill="clear">Selecionar</ion-button>
         </ion-item>
