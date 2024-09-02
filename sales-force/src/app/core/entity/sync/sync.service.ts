@@ -1,7 +1,7 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
 import { CustomerService } from '../customer/customer.service';
-import { Order, OrderService } from '../order/order.service';
+import { OrderService } from '../order/order.service';
 
 import { Network } from '@awesome-cordova-plugins/network/ngx';
 
@@ -9,6 +9,8 @@ import { Network } from '@awesome-cordova-plugins/network/ngx';
   providedIn: 'root'
 })
 export class SyncService {
+
+  private static isSync = false;
 
   private error = new EventEmitter();
 
@@ -35,9 +37,11 @@ export class SyncService {
   }
 
   public async sync() {
-    if (this.network.type !== this.network.Connection.NONE) {
+    if (this.network.type !== this.network.Connection.NONE && !SyncService.isSync) {
+      SyncService.isSync = true;
       await this.syncCustomer();
       await this.syncOrder();
+      SyncService.isSync = false;
     }
   }
 
@@ -68,7 +72,7 @@ export class SyncService {
             order.sync = 1;
             order.id = order.oldid;
             order.error = err.error?.message ? err.error?.message : JSON.stringify(err.error);
-            if (err.message) {
+            if (err.message && err.status === 0) {
               order.error = err.message;
               order.sync = 0;
             }

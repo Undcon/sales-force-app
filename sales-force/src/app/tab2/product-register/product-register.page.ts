@@ -444,7 +444,7 @@ export class ProductRegisterPage implements OnInit {
         if (this._items[i]) {
           this.items.push(JSON.parse(JSON.stringify(this._items[i])));
           try {
-            this.items[i].product = this._items[i].items.map((i: any) => i.product.name).join(', ');
+            this.items[i].product = this._items[i].items.map((i: any) => i.product.name);
           } catch (err) { }
         }
       }
