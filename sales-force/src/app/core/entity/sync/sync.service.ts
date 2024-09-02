@@ -72,7 +72,8 @@ export class SyncService {
             order.sync = 1;
             order.id = order.oldid;
             order.error = err.error?.message ? err.error?.message : JSON.stringify(err.error);
-            if (order.error) {
+            if (err.message) {
+              order.error = err.message;
               order.sync = 0;
             }
             if (err.status !== 0) {
