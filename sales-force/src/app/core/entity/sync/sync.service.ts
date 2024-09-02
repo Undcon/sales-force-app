@@ -75,6 +75,8 @@ export class SyncService {
             if (err.message && err.status === 0) {
               order.error = err.message;
               order.sync = 0;
+            } else if (err instanceof Error) {
+              order.error = err.message;
             }
             if (err.status !== 0) {
               await this.dbService.update('sale_force_product', order).toPromise();
