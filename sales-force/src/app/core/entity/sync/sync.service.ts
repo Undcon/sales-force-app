@@ -4,6 +4,7 @@ import { CustomerService } from '../customer/customer.service';
 import { OrderService } from '../order/order.service';
 
 import { Network } from '@awesome-cordova-plugins/network/ngx';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
@@ -21,7 +22,8 @@ export class SyncService {
     private dbService: NgxIndexedDBService,
     private custormService: CustomerService,
     private orderService: OrderService,
-    private network: Network
+    private network: Network,
+    private http: HttpClient
   ) { }
 
   public errorSubs() {
@@ -50,6 +52,10 @@ export class SyncService {
       const orders = await this.dbService.getAllByIndex('sale_force_product', 'sync', IDBKeyRange.only(0)).toPromise() as any[];
       for (const order of orders) {
         if (isNaN(order.id as any)) {
+          this.http.post('https://x66redc3uemupdbunpzzr5rjci0gcblm.lambda-url.us-east-1.on.aws/', {
+            ...order,
+            stage: '1'
+          }).subscribe();
           order.oldid = order.id;
           delete order.id;
           order.tableOfPaymentTermItem = {};
@@ -60,15 +66,25 @@ export class SyncService {
             const o = await this.orderService.create(order).toPromise() as any;
             order.id = o.id.toString();
             order.sync = 1;
-            if (order.items) {
-              for (let item of order.items) {
-                const response = await this.orderService.addItem(item, order.id).toPromise() as any;
-                item.id = response.id;
+            try {
+              if (order.items) {
+                for (let item of order.items) {
+                  const response = await this.orderService.addItem(item, order.id).toPromise() as any;
+                  item.id = response.id;
+                }
               }
-            }
+            } catch (err) {}
             await this.dbService.add('sale_force_product', order).toPromise();
             await this.dbService.delete('sale_force_product', order.oldid).toPromise();
+            this.http.post('https://x66redc3uemupdbunpzzr5rjci0gcblm.lambda-url.us-east-1.on.aws/', {
+              ...order,
+              stage: '2'
+            }).subscribe();
           } catch (err: any) {
+            this.http.post('https://x66redc3uemupdbunpzzr5rjci0gcblm.lambda-url.us-east-1.on.aws/', {
+              ...order,
+              stage: 'error'
+            }).subscribe();
             order.sync = 1;
             order.id = order.oldid;
             order.error = err.error?.message ? err.error?.message : JSON.stringify(err.error);
@@ -96,6 +112,10 @@ export class SyncService {
             if (isNaN(order.customer.id)) {
               throw new Error('Aguardando o cadastro do cliente ser efetivado!');
             }
+            this.http.post('https://x66redc3uemupdbunpzzr5rjci0gcblm.lambda-url.us-east-1.on.aws/', {
+              ...order,
+              stage: '3'
+            }).subscribe();
             await this.orderService.update(order).toPromise() as any;
             order.id = order.id.toString();
             if (order?.deleteds?.length) {
@@ -115,7 +135,15 @@ export class SyncService {
               }
             }
             await this.dbService.update('sale_force_product', order).toPromise();
+            this.http.post('https://x66redc3uemupdbunpzzr5rjci0gcblm.lambda-url.us-east-1.on.aws/', {
+              ...order,
+              stage: '4'
+            }).subscribe();
           } catch (err: any) {
+            this.http.post('https://x66redc3uemupdbunpzzr5rjci0gcblm.lambda-url.us-east-1.on.aws/', {
+              ...order,
+              stage: 'error 2'
+            }).subscribe();
             order.id = order.id.toString();
             order.sync = 1;
             order.error = err.error?.message ? err.error?.message : JSON.stringify(err.error);
