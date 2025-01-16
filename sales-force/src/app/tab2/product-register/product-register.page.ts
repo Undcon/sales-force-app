@@ -377,7 +377,7 @@ export class ProductRegisterPage implements OnInit {
           //Adiciona o Produto
           const productTablePrice = this.tablePriceProduct.find(ptp => ptp.product?.id === form?.name.id);
           if (productTablePrice && productTablePrice.price) {
-            form.price = productTablePrice.price;
+            form.price = this.getPriceOrPriceWithIncrease(productTablePrice.price);
           } else {
             alert(`O produto ${form?.name.name} não possui preço configurado na tabela de preço selecionada!`);
             form.price = 0;
@@ -508,6 +508,16 @@ export class ProductRegisterPage implements OnInit {
       }
     }
     return 0;
+  }
+
+  public getPriceOrPriceWithIncrease(priceOfTablePrice: number) {
+    if (this.paymentTermSelectedList.length) {
+      if (this.form.get('paymentTermSelected')?.value && this.form.get('paymentTermSelected')?.value?.increasePercentage) {
+        let increase = priceOfTablePrice * (this.form.get('paymentTermSelected')?.value?.increasePercentage / 100);
+        return priceOfTablePrice + increase;
+      }
+    }
+    return priceOfTablePrice;
   }
 
   public showItensKit(index: number) {
